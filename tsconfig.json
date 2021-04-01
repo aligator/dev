@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "module": "esnext",
+        "esModuleInterop": true,
+        "target": "esnext",
+        "lib": [
+        "dom",
+        "es6",
+        ]
+    },
+    "include": [
+        "src"
+    ],
+}

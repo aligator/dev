@@ -1,0 +1,30 @@
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+}
+
+#root {
+    height: 100%;
+    background-color: black;
+    color: limegreen;
+    font-family: monospace;
+    font-size: large;
+}
+
+#console-container {
+    white-space: pre-line;
+}
+
+#console-input {
+    white-space: pre-line;
+}
+
+#console-input:focus {
+    outline: none;
+}
+
+.term-error {
+    color: red;
+}

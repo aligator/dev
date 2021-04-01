@@ -1,0 +1,20 @@
+{
+  "name": "aligator.dev",
+  "version": "1.0.0",
+  "description": "aligator.dev source",
+  "main": "index.ts",
+  "repository": "https://github.com/aligator/.dev",
+  "author": "aligator",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc src/index.ts --outDir build/js && cp public/* build",
+    "start": "node serve.js"
+  },
+  "devDependencies": {
+    "connect": "^3.7.0",
+    "livereload": "^0.9.3",
+    "nodemon": "^2.0.7",
+    "serve-static": "^1.14.1",
+    "typescript": "^4.2.3"
+  }
+}
