@@ -107,7 +107,7 @@ func (r Reader) Read(filename string) (data.Model, error) {
 	fmt.Println(filename)
 	if strings.HasPrefix(filename, "http://") || strings.HasPrefix(filename, "https://") {
 		// ToDo: make configurable
-		filename = "https://aligator.dev?target=" + url.QueryEscape(filename)
+		filename = "https://cors.aligator.dev?target=" + url.QueryEscape(filename)
 	}
 	fmt.Println(filename)
 	req, err := http.NewRequest("GET", filename, nil)
