@@ -7,14 +7,18 @@
   "author": "aligator",
   "license": "MIT",
   "scripts": {
-    "build": "tsc src/index.ts --outDir build/js && cp public/* build",
+    "dist": "tsc --outDir tmp src/index.ts && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
+    "dist-public:dev": "cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp.html && mv tmp.html build/index.html",
+    "watch": "tsc-watch -w --outDir tmp src/index.ts --onSuccess \"browserify tmp/index.js -o build/js/bundle.js\"",
     "start": "node serve.js"
   },
   "devDependencies": {
+    "browserify": "^17.0.0",
+    "chokidar": "^3.5.1",
     "connect": "^3.7.0",
     "livereload": "^0.9.3",
-    "nodemon": "^2.0.7",
     "serve-static": "^1.14.1",
+    "tsc-watch": "^4.2.9",
     "typescript": "^4.2.3"
   }
 }

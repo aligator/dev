@@ -1,7 +1,8 @@
 {
     "verbose": true,
     "execMap": {
-        "ts": "tsc --outDir tmp src/{{filename}} && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp.html && mv tmp.html build/index.html"    },
+        "ts": "$(yarn bin "    
+    },
     "ext": "html ts css",
     "ignore": ["node_modules", ".git", "build"],
     "watch": [

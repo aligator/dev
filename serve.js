@@ -1,23 +1,30 @@
 var connect  = require('connect')
 var static = require('serve-static')
 var child_process = require('child_process')
+var chokidar = require('chokidar');
 
-child_process.exec("yarn bin nodemon", (error, stdout, stderr) => {
-    if (error) {
-        console.error(error)
-        return;
-    }
-    console.error(stderr.toString())
+// Watch for typescript src.
+const watch = child_process.spawn("yarn", ["watch"])
+watch.stdout.on("data", (data) => {
+    console.log(data.toString())
+})
+watch.stderr.on("data", (data) => {
+    console.error(data.toString())
+})
+watch.on("close", (code) => {
+    console.log("closed tsc-watch with " + code)
+})
 
-    const nodemon = child_process.spawn(stdout.toString().trim())
-    nodemon.stdout.on("data", (data) => {
-        console.log(data.toString())
-    })
-    nodemon.stderr.on("data", (data) => {
-        console.error(data.toString())
-    })
-    nodemon.on("close", (code) => {
-        console.log("closed nodemon with " + code)
+// Watch for public folder.
+chokidar.watch("./public").on("all", (event, path) => {
+    console.log(event, path)
+    child_process.exec("yarn dist-public:dev", (error, stdout, stderr) => {
+        if (error) {
+            console.error(error)
+            return
+        }
+        console.log(stdout.toString())
+        console.error(stderr.toString())
     })
 })
 
