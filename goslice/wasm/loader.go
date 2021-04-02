@@ -2,10 +2,13 @@ package wasm
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/aligator/goslice/data"
 	"github.com/hschendel/stl"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 // face is a 3d triangle face defined by three 3d vectors.
@@ -101,6 +104,12 @@ type Reader struct{}
 
 func (r Reader) Read(filename string) (data.Model, error) {
 	model := &model{}
+	fmt.Println(filename)
+	if strings.HasPrefix(filename, "http://") || strings.HasPrefix(filename, "https://") {
+		// ToDo: make configurable
+		filename = "https://aligator.dev?target=" + url.QueryEscape(filename)
+	}
+	fmt.Println(filename)
 	req, err := http.NewRequest("GET", filename, nil)
 	req.Header.Add("js.fetch:credentials", "omit")
 	if err != nil {
