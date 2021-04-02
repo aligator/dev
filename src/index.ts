@@ -1,6 +1,6 @@
 import Terminal from './terminal'
 const consoleContainer = document.getElementById('console-container')
-const consoleInput = document.getElementById('console-input')
+const consoleInput: HTMLInputElement = document.getElementById('console-input') as HTMLInputElement
 const root = document.getElementById('root')
 root.addEventListener("click", () => {
     consoleInput.focus()
@@ -16,19 +16,18 @@ t.stderr.on("write", ((b) => {
     consoleContainer.innerHTML += "<span class='term-error'>" + b.read() + "</span>"
 }))
 
-t.stdin.on("write", (b) => {
-    consoleInput.innerHTML = "$" + b.get()
+consoleInput.addEventListener("change", (e) => {
     consoleInput.scrollIntoView({behavior: "smooth"});
 })
 
-t.stdin.on("read", (b) => {
-    consoleInput.innerHTML = "$"
+consoleInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        t.run((consoleInput.value || "").split(" "))
+        consoleInput.value = ""
+    }
 })
 
-t.stdin.bindInputElement(consoleInput, (text) => {
-    t.run(...text.split(" "))
-    consoleInput.scrollIntoView({behavior: "smooth"});
+t.run(["motd"], {
+    noEcho: true
 })
-
-t.run("motd")
 

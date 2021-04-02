@@ -9,7 +9,6 @@ export default class Terminal {
     mixed: Buffer = new Buffer()
     stdout: Buffer = new Buffer()
     stderr: Buffer = new Buffer()
-    stdin: Buffer = new Buffer()
 
     commands: Record<string, Program> = {}
 
@@ -20,7 +19,13 @@ export default class Terminal {
         this.commands["goslice"] = new GoSlice()
     }
 
-    run(...args: string[]) {
+    run(args: string[], options?: {
+        noEcho: boolean
+    }) {
+        if (!options?.noEcho) {
+            this.stdout.write(args.join(" ") + "\n")
+        }
+
         const cmd = this.commands[args[0]]
         if (cmd === undefined) {
             this.stderr.write(`command '${args[0]}' not found\n`)
@@ -31,9 +36,5 @@ export default class Terminal {
             stderr: this.stderr,
             stdout: this.stdout
         }, args)
-    }
-
-    write(text: string) {
-        this.stdin.write(text)
     }
 }

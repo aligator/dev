@@ -35,6 +35,21 @@ a:active {
 
 #console-input {
     white-space: pre-wrap;
+
+    width: calc(100% - 20px);
+    background: inherit;
+    left: 0px;
+    margin: 0px;
+    padding: 0px;
+    color: inherit;
+    font: inherit;
+    border: none;
+    float:right;
+}
+
+#console-prompt {
+    min-width: 20px;
+    float:left;
 }
 
 #console-input:focus {

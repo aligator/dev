@@ -4,7 +4,7 @@ export default class Buffer {
 
     private buffer: string = ""
 
-    bindInputElement(element: HTMLElement, onSend: (text: string) => void) {
+    bindInputElement(element: HTMLInputElement, onSend: (text: string) => void) {
         element.addEventListener("paste", (e) => {
             let paste = (e.clipboardData).getData('text');
             this.write(paste)
