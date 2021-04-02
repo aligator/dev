@@ -2,14 +2,15 @@
   "name": "aligator.dev",
   "version": "1.0.0",
   "description": "aligator.dev source",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "repository": "https://github.com/aligator/.dev",
   "author": "aligator",
   "license": "MIT",
   "scripts": {
-    "dist": "tsc --outDir tmp src/index.ts && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
-    "dist-public:dev": "cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp.html && mv tmp.html build/index.html",
-    "watch": "tsc-watch -w --outDir tmp src/index.ts --onSuccess \"browserify tmp/index.js -o build/js/bundle.js\"",
+    "dist": "tsc && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
+    "build:go": "go build -o ./public/goslice.wasm ./goslice",
+    "dist-public:dev": "cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp/index.html && cp tmp/index.html build/index.html",
+    "watch": "tsc-watch -w --onSuccess \"browserify tmp/index.js -o build/js/bundle.js\"",
     "start": "node serve.js"
   },
   "devDependencies": {

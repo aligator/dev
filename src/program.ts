@@ -8,5 +8,5 @@ export interface Context {
 }
 
 export default abstract class Program {
-    abstract run(ctx: Context, args: string[]): number
+    abstract run(ctx: Context, args: string[]): Promise<number>
 }

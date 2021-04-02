@@ -5,32 +5,40 @@ export default class Buffer {
     private buffer: string = ""
 
     bindInputElement(element: HTMLElement, onSend: (text: string) => void) {
+        element.addEventListener("paste", (e) => {
+            let paste = (e.clipboardData).getData('text');
+            this.write(paste)
+            e.preventDefault();
+        })
         element.addEventListener("keydown", (e) => {
+            // e.preventDefault()
+            // e.stopPropagation()
             console.log("keydown", e)
             switch (e.key) {
                 case "Backspace":
+                    // delete one char
                     this.buffer = this.buffer.substring(0, this.buffer.length-1)
                     this.write("")
                     break;
+                case "Enter":
+                    if (e.shiftKey) {
+                        this.write("\n")
+                    } else {
+                        onSend(this.read())
+                    }
+                    break;
+                case "Shift":
+                case "Control":
+                case "Alt":
+                    break
                 default:
+                    // Ignore if special keys are pressed
+                    if (e.ctrlKey || e.altKey) {
+                        break
+                    }
+                    this.write(e.key)
             }
-        })
-        element.addEventListener("keypress", (e) => {
-            console.log("keypress", e)
-            if (e.key) {
-                switch (e.key) {
-                    case "Enter":
-                        if (e.shiftKey) {
-                            this.write("\n")
-                        } else {
-                            onSend(this.read())
-                        }
-                        
-                        break;
-                    default:
-                        this.write(e.key)
-                }
-            }
+
         })
     }
 

@@ -18,6 +18,7 @@ t.stderr.on("write", ((b) => {
 
 t.stdin.on("write", (b) => {
     consoleInput.innerHTML = "$" + b.get()
+    consoleInput.scrollIntoView({behavior: "smooth"});
 })
 
 t.stdin.on("read", (b) => {
@@ -26,7 +27,8 @@ t.stdin.on("read", (b) => {
 
 t.stdin.bindInputElement(consoleInput, (text) => {
     t.run(...text.split(" "))
+    consoleInput.scrollIntoView({behavior: "smooth"});
 })
 
-t.run("help")
+t.run("motd")
 

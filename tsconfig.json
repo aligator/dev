@@ -1,15 +1,19 @@
 {
     "compilerOptions": {
+        "outDir": "tmp",
         "sourceMap": true,
-        "module": "esnext",
+        "module": "CommonJS",
         "esModuleInterop": true,
-        "target": "esnext",
+        "target": "es2015",
         "lib": [
-        "dom",
-        "es6",
+            "es5",
+            "es2015",
+            "dom",
+            "scripthost",
         ]
     },
     "include": [
         "src"
     ],
+
 }

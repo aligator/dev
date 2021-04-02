@@ -28,6 +28,21 @@ chokidar.watch("./public").on("all", (event, path) => {
     })
 })
 
+// Watch goslice folder.
+chokidar.watch("./goslice").on("all", (event, path) => {
+    console.log(event, path)
+    process.env.GOOS="js"
+    process.env.GOARCH="wasm"
+    child_process.exec("yarn build:go", (error, stdout, stderr) => {
+        if (error) {
+            console.error(error)
+            return
+        }
+        console.log(stdout.toString())
+        console.error(stderr.toString())
+    })
+})
+
 console.log("start server")
 
 var server = connect()
