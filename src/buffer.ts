@@ -13,7 +13,6 @@ export default class Buffer {
         element.addEventListener("keydown", (e) => {
             // e.preventDefault()
             // e.stopPropagation()
-            console.log("keydown", e)
             switch (e.key) {
                 case "Backspace":
                     // delete one char
@@ -42,8 +41,8 @@ export default class Buffer {
         })
     }
 
-    write(data: string) {
-        this.buffer += data
+    write(data: {toString(): string}) {
+        this.buffer += data.toString()
 
         this.onWrites.forEach((onWrite) => {
             onWrite(this)

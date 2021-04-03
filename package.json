@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "dist": "tsc && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
-    "build:go": "go build -o ./public/goslice.wasm ./goslice",
+    "build:go": "go build -o ./public/goslice.wasm ./go/goslice",
     "dist-public:dev": "cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp/index.html && cp tmp/index.html build/index.html",
     "watch": "tsc-watch -w --onSuccess \"browserify tmp/index.js -o build/js/bundle.js\"",
     "start": "node serve.js"

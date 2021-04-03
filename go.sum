@@ -3,8 +3,8 @@ github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af h1:wVe6/Ea46ZMeNkQjj
 github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af/go.mod h1:K08gAheRH3/J6wwsYMMT4xOr94bZjxIelGM0+d/wbFw=
 github.com/aligator/go.clipper v0.0.0-20200424185851-fc8a51077d44 h1:5nsfJ11G3udJ3c9UE8XAqQgIsS/hDcttx1aACpcvwkI=
 github.com/aligator/go.clipper v0.0.0-20200424185851-fc8a51077d44/go.mod h1:Fwf1mwr8bsQcByXvpURfbGDrJz6TnVop0RJMkXK22UA=
-github.com/aligator/goslice v0.3.4 h1:tlWLHdnyW0UFh8PmYflETEJPeMscyIyXLxLdYqtt/fc=
-github.com/aligator/goslice v0.3.4/go.mod h1:YZ2YfPrMFDKGIjJ99EvKC8p/h/Oe5PkgAlY56E6he9o=
+github.com/aligator/goslice v0.3.5 h1:cAwn/w2ylRNJxS59UW3e+ovn9m1GKcBym+JAXaqiQuY=
+github.com/aligator/goslice v0.3.5/go.mod h1:YZ2YfPrMFDKGIjJ99EvKC8p/h/Oe5PkgAlY56E6he9o=
 github.com/ctessum/geom v0.2.10 h1:2jwVCZiwFkn3newoTPhMf/M1+8DEe0jKElUrZs9u4bw=
 github.com/ctessum/geom v0.2.10/go.mod h1:qRaD78k6ttfldYw+SkkdobyWPJDmgc3yYz3thx8WHP4=
 github.com/ctessum/polyclip-go v1.0.2-0.20200417141046-48e92ea36ddd h1:BVBbmu475OhEvEFXp17QEf0XHJhNHsfvGyNTjsshfOA=

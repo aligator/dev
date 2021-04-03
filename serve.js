@@ -29,7 +29,7 @@ chokidar.watch("./public").on("all", (event, path) => {
 })
 
 // Watch goslice folder.
-chokidar.watch("./goslice").on("all", (event, path) => {
+chokidar.watch("./go").on("all", (event, path) => {
     console.log(event, path)
     process.env.GOOS="js"
     process.env.GOARCH="wasm"
