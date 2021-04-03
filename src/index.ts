@@ -10,10 +10,12 @@ const t = new Terminal()
 
 t.stdout.on("write", ((b) => {
     consoleContainer.innerHTML += b.read()
+    consoleInput.scrollIntoView({behavior: "smooth"});
 }))
 
 t.stderr.on("write", ((b) => {
     consoleContainer.innerHTML += "<span class='term-error'>" + b.read() + "</span>"
+    consoleInput.scrollIntoView({behavior: "smooth"});
 }))
 
 consoleInput.addEventListener("change", (e) => {

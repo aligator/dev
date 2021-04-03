@@ -17,14 +17,8 @@ export default class GoSlice extends Program {
             const splittedFile = args[1].split("/")
 
             element.setAttribute('download', splittedFile[splittedFile.length-1] + ".gcode");
-
-            element.style.display = 'none';
-            document.body.appendChild(element);
-
-            element.click();
-
-            document.body.removeChild(element);
-
+            element.innerText = splittedFile[splittedFile.length-1] + ".gcode DOWNLOAD"
+            ctx.stdout.write(element.outerHTML)
             return 0
         }).catch((err) => {
             ctx.stderr.write(err)
