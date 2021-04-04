@@ -16,7 +16,7 @@ html {
 body {
     height: 100%;
     background: url("../img/arch.png") fixed;
-    font-family: TerminalMono;
+    font-family: TerminalMono, monospace;
     line-height: 1.4;
 }
 
@@ -37,9 +37,7 @@ h6 {font-size: small;}
     height: 100%;
 
     color: limegreen;
-
     overflow: scroll;
-    overflow-y: initial;
 }
 
 a:link {
@@ -59,7 +57,7 @@ a:active {
 }
 
 #console-container {
-    white-space: pre-wrap;
+    white-space: pre;
 }
 
 #console-input {

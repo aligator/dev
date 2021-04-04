@@ -18,7 +18,7 @@ export default class Terminal {
         this.commands["motd"] = new Motd()
         this.commands["github"] = new Github()
         this.commands["goslice"] = new GoSlice()
-        this.commands["impressum"] = new Imprint()
+        this.commands["imprint"] = new Imprint()
     }
 
     run(args: string[], options?: {

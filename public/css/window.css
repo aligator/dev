@@ -13,7 +13,8 @@
 .window-content {
     /* Blur. */
     background-color: #010101AA;
-    backdrop-filter: blur(5px);
+    /* Not really working very well... */
+    /* backdrop-filter: blur(5px);*/
 
     height: calc(100% - 20px); /* window - header.height - header.padding */
     width: inherit;
