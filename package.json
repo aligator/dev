@@ -2,7 +2,7 @@
   "name": "aligator.dev",
   "version": "1.0.0",
   "description": "aligator.dev source",
-  "main": "src/index.ts",
+  "main": "src/index.tsx",
   "repository": "https://github.com/aligator/.dev",
   "author": "aligator",
   "license": "MIT",

@@ -31,14 +31,14 @@ npm manifest:
     "name": "aligator.dev",
     "version": "1.0.0",
     "description": "aligator.dev source",
-    "main": "index.ts",
+    "main": "index.tsx",
     "repository": "https://github.com/aligator/.dev",
     "author": "aligator",
     "license": "MIT",
     "scripts": {
-      "build": "tsc --outDir tmp src/index.ts && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
+      "build": "tsc --outDir tmp src/index.tsx && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
       "post-compile": "browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp.html && mv tmp.html build/index.html",
-      "watch": "tsc-watch -w --outDir tmp src/index.ts --onSuccess \"yarn post-compile\"",
+      "watch": "tsc-watch -w --outDir tmp src/index.tsx --onSuccess \"yarn post-compile\"",
       "start": "node serve.js"
     },
     "devDependencies": {

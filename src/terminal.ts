@@ -4,6 +4,7 @@ import Help from './programs/help'
 import Github from './programs/github'
 import GoSlice from './programs/goslice'
 import Motd from "./programs/motd";
+import Imprint from "./programs/imprint";
 
 export default class Terminal {
     mixed: Buffer = new Buffer()
@@ -17,6 +18,7 @@ export default class Terminal {
         this.commands["motd"] = new Motd()
         this.commands["github"] = new Github()
         this.commands["goslice"] = new GoSlice()
+        this.commands["impressum"] = new Imprint()
     }
 
     run(args: string[], options?: {

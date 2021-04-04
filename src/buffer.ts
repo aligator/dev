@@ -4,55 +4,19 @@ export default class Buffer {
     private onWrites: ((buffer: Buffer) => void)[] = []
     private onReads: ((buffer: Buffer) => void)[] = []
 
-    private buffer: string = ""
+    private buffer: PlainJSXElement
 
-    bindInputElement(element: HTMLInputElement, onSend: (text: string) => void) {
-        element.addEventListener("paste", (e) => {
-            if (!e.clipboardData) {
-                return
-            }
-
-            let paste = (e.clipboardData).getData('text');
-            this.write(paste)
-            e.preventDefault();
-        })
-        element.addEventListener("keydown", (e) => {
-            // e.preventDefault()
-            // e.stopPropagation()
-            switch (e.key) {
-                case "Backspace":
-                    // delete one char
-                    this.buffer = this.buffer.substring(0, this.buffer.length-1)
-                    this.write("")
-                    break;
-                case "Enter":
-                    if (e.shiftKey) {
-                        this.write("\n")
-                    } else {
-                        onSend(this.read())
-                    }
-                    break;
-                case "Shift":
-                case "Control":
-                case "Alt":
-                    break
-                default:
-                    // Ignore if special keys are pressed
-                    if (e.ctrlKey || e.altKey) {
-                        break
-                    }
-                    this.write(e.key)
-            }
-        })
+    constructor() {
+        this.buffer = new PlainJSXElement("")
     }
 
     write(...values: (PlainJSXElement | PlainJSXElement[] | string)[]) {
         const printAll = (...data: (PlainJSXElement | PlainJSXElement[] | string)[]) => {
             data.forEach(element => {
-                if (element instanceof PlainJSXElement) {       
-                    this.buffer += element.outerHTML + "\n"
+                if (element instanceof PlainJSXElement) {
+                    this.buffer.children.push(...element.children)
                 } else if (typeof element === "string") {
-                    this.buffer += element
+                    this.buffer.children.push(element)
                 } else if (Array.isArray(element)) {
                     printAll(element)
                 } else {
@@ -69,16 +33,24 @@ export default class Buffer {
         })
     }
 
-    read(): string {
+    read(): PlainJSXElement {
         const data = this.buffer
-        this.buffer = ""
+
+        for (let i=0; i<=this.buffer.children.length; i++) {
+            if (typeof this.buffer.children[i] !== "string") {
+                (this.buffer.children[i] as Element | undefined)?.remove()
+            }
+        }
+
+        this.buffer = new PlainJSXElement("")
+
         this.onReads.forEach((onRead) => {
             onRead(this)
         })
         return data
     }
 
-    get(): string {
+    get(): PlainJSXElement {
         return this.buffer;
     }
 

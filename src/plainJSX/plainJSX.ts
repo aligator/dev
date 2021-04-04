@@ -1,6 +1,3 @@
-type ElementNode = (Element | string)
-type ElementNodes = ElementNode | ElementNode[]
-
 export type HTMLAttributes<T> = Partial<T>
 
 export type HTMLElements<T> = {
@@ -10,53 +7,62 @@ export type HTMLElements<T> = {
 export type IntrinsicElements = HTMLElements<HTMLElementTagNameMap>
 
 export class PlainJSXElement {
-    private readonly document: DocumentFragment
-    get outerHTML(): string {
+    children: (Element | string)[] = []
+
+    get outerHTMdL(): string {
         let result = ""
 
-        for (let i=0; i<=this.document.childNodes.length; i++) {
-            if (!this.document.childNodes.item(i)) {
-                continue
+        this.children.forEach((c) => {
+            if (!c) {
+                return
             }
 
-            if ((this.document.childNodes.item(i) as unknown as {outerHTML: string}).outerHTML !== undefined) {
-                result += (this.document.childNodes.item(i) as unknown as {outerHTML: string}).outerHTML
+            if (typeof c === "string") {
+                result += c
             } else {
-                result += this.document.childNodes.item(i).textContent
+                result += c.outerHTML
             }
-        }
+        })
+
         return result
     }
    
     constructor(name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (PlainJSXElement | PlainJSXElement[] | string)[]) {
-        this.document = document.createDocumentFragment()
-        let elem: Element | DocumentFragment
+        let elem: Element
     
-        if (name.length === 0) {
-            // If just an empty fragment, add the children directly to the document.
-            elem = document.createDocumentFragment()
-        } else {
+        if (name.length !== 0) {
             elem = document.createElement(name)
             if (props) {
                 Object.keys(props || {}).forEach((k) => {
                     (elem as any)[k] = props[k]
                 })
             }
-        }
 
-        const addChild = (child: PlainJSXElement | PlainJSXElement[] | string) => {
-            if (Array.isArray(child)) {
-                child.forEach(addChild)
-            } else if (child instanceof PlainJSXElement) {
-                elem.appendChild(child.document)
-            } else if (typeof child == "string") {
-                elem.append(child)
+            const addChild = (child: PlainJSXElement | PlainJSXElement[] | string) => {
+                if (Array.isArray(child)) {
+                    child.forEach(addChild)
+                } else if (child instanceof PlainJSXElement) {
+                    elem.append(...child.children)
+                } else if (typeof child == "string") {
+                    elem.append(child)
+                }
             }
+            (children || []).forEach(addChild)
+
+            this.children.push(elem)
+        } else {
+            // just an fragment -> just save the children but this time direct into the root child list
+            const addChild = (child: PlainJSXElement | PlainJSXElement[] | string) => {
+                if (Array.isArray(child)) {
+                    child.forEach(addChild)
+                } else if (child instanceof PlainJSXElement) {
+                    this.children.push(...child.children)
+                } else if (typeof child == "string") {
+                    this.children.push(child)
+                }
+            }
+            (children || []).forEach(addChild)
         }
-    
-        (children || []).forEach(addChild)
-    
-        this.document.appendChild(elem)
     }
 }
 

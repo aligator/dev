@@ -1,3 +1,4 @@
+import * as PlainJSX from "./plainJSX";
 import Terminal from './terminal'
 import './window'
 
@@ -17,12 +18,13 @@ function run() {
     const t = new Terminal()
 
     t.stdout.on("write", ((b) => {
-        consoleContainer.innerHTML += b.read()
+        consoleContainer.append(...b.read().children)
         consoleInput.scrollIntoView({behavior: "smooth"});
     }))
 
     t.stderr.on("write", ((b) => {
-        consoleContainer.innerHTML += "<span class='term-error'>" + b.read() + "</span>"
+        const elem = (<span className='term-error'>{b.read()}</span>)
+        consoleContainer.append(...elem.children)
         consoleInput.scrollIntoView({behavior: "smooth"});
     }))
 
