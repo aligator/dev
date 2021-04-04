@@ -15,8 +15,7 @@ export default class Motd extends Program {
 |                                                                                        |
 |                                    `}<a target="_blank" href='https://github.com/aligator/dev'>This page is WIP</a>{`                                    |
 |                                                                                        |
-|                 Please type '`}<a href="#help" onclick={runOnClick(ctx, "help")}>help</a>{`' to see a list of available commands.                |
-|                                                                              `}<a href="#imprint" onclick={runOnClick(ctx, "imprint")}>Imprint</a>{` |
+|                 Please type '`}<a href="#help" onclick={runOnClick(ctx, "help")}>help</a>{`' to see a list of available commands.        `}<a href="#imprint" onclick={runOnClick(ctx, "imprint")}>Imprint</a>{` |
  ========================================================================================
 `}
             </>
