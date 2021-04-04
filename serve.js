@@ -51,6 +51,8 @@ server.use(static(__dirname + '/build', {
     setHeaders: (res, path, stat) => {
         if (path.endsWith("js")) {
             res.setHeader("Content-Type", "application/javascript")
+        } else if (path.endsWith("js")) {
+            res.setHeader("Content-Type", "image/png")
         }
     }
 }))
@@ -58,5 +60,7 @@ server.use(static(__dirname + '/build', {
 server.listen(3000)
 
 var livereload = require('livereload')
-var lrserver = livereload.createServer()
+var lrserver = livereload.createServer({
+    delay: 300
+})
 lrserver.watch(__dirname + "/build")

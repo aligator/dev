@@ -1,4 +1,5 @@
 import Terminal from './terminal'
+import './window'
 
 function run() {
     const consoleContainer = document.getElementById('console-container')

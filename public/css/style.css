@@ -1,16 +1,38 @@
+@font-face {
+    font-family: 'TerminalMono';
+    src: url('../font/DroidSansMono.woff2') format('woff2'),
+        url('../font/DroidSansMono.woff') format('woff'),
+        url('../font/DroidSansMono.ttf')  format('truetype'),
+        url('../font/DroidSansMono.svg#DroidSansMono') format('svg');
+
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+
 html {
     height: 100%;
-    background-color: black;
 }
 body {
     height: 100%;
+    background: url("../img/arch.png") fixed;
+    font-family: TerminalMono;
 }
 
 #root {
+    background: inherit;
     height: 100%;
+}
+
+#console {
+    width: 100%;
+    height: 100%;
+
     color: limegreen;
-    font-family: monospace;
-    font-size: large;
+
+    overflow: scroll;
+    overflow-y: initial;
 }
 
 a:link {
@@ -48,6 +70,7 @@ a:active {
 }
 
 #console-prompt {
+    background: inherit;
     min-width: 20px;
     float:left;
 }
