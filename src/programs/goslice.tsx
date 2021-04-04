@@ -1,6 +1,6 @@
+import * as PlainJSX from "../plainJSX";
 import Program, { Context } from "../program";
 import {runWasm} from "../wasm";
-
 
 export default class GoSlice extends Program {
     async run(ctx: Context, args: string[]) {
@@ -12,13 +12,16 @@ export default class GoSlice extends Program {
                 return 0
             }
 
-            let element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(gcode));
             const splittedFile = args[1].split("/")
+            const filename = splittedFile[splittedFile.length-1] + ".gcode"
+            const url = URL.createObjectURL(new File([gcode], filename, {
+                type: "text/x.gcode"
+            }))
 
-            element.setAttribute('download', splittedFile[splittedFile.length-1] + ".gcode");
-            element.innerText = splittedFile[splittedFile.length-1] + ".gcode DOWNLOAD"
-            ctx.stdout.write(element.outerHTML)
+            // Wait some time that the stdout gets fully written before posting the link.
+            setTimeout(() => {
+                ctx.stdout.write(<a href={url} download={filename}>{filename + " DOWNLOAD"}</a>)
+            }, 1000)
             return 0
         }).catch((err) => {
             ctx.stderr.write(err)
