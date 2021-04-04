@@ -5,11 +5,15 @@
         "module": "CommonJS",
         "esModuleInterop": true,
         "target": "es2015",
+        "jsx": "react",
+        "jsxFactory": "PlainJSX.createElement",
+        "jsxFragmentFactory": "PlainJSX.Fragment",
+        "strict": true,
         "lib": [
             "es5",
             "es2015",
             "dom",
-            "scripthost",
+            "scripthost"
         ]
     },
     "include": [

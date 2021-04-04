@@ -1,3 +1,5 @@
+import {PlainJSXElement, Fragment} from './plainJSX'
+
 export default class Buffer {
     private onWrites: ((buffer: Buffer) => void)[] = []
     private onReads: ((buffer: Buffer) => void)[] = []
@@ -6,6 +8,10 @@ export default class Buffer {
 
     bindInputElement(element: HTMLInputElement, onSend: (text: string) => void) {
         element.addEventListener("paste", (e) => {
+            if (!e.clipboardData) {
+                return
+            }
+
             let paste = (e.clipboardData).getData('text');
             this.write(paste)
             e.preventDefault();
@@ -37,12 +43,26 @@ export default class Buffer {
                     }
                     this.write(e.key)
             }
-
         })
     }
 
-    write(data: {toString(): string}) {
-        this.buffer += data.toString()
+    write(...values: (PlainJSXElement | PlainJSXElement[] | string)[]) {
+        const printAll = (...data: (PlainJSXElement | PlainJSXElement[] | string)[]) => {
+            data.forEach(element => {
+                if (element instanceof PlainJSXElement) {       
+                    this.buffer += element.outerHTML + "\n"
+                } else if (typeof element === "string") {
+                    this.buffer += element
+                } else if (Array.isArray(element)) {
+                    printAll(element)
+                } else {
+                    console.error("write called without valid value", element)
+                    return
+                }
+            });
+        }
+        
+        printAll(...values)
 
         this.onWrites.forEach((onWrite) => {
             onWrite(this)

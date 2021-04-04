@@ -14,10 +14,12 @@ if (WebAssembly) {
 
 let instance = 0
 
-export function runWasm(ctx: Context, file: string, args: string[]) {
+export function runWasm(ctx: Context, file: string, args: string[]): Promise<any> {
     return new Promise(((resolve, reject) => {
         if (WebAssembly.instantiateStreaming) {
-            const go = new globalThis.Go();
+            const anyGlobalThis = (globalThis as any)
+
+            const go = new anyGlobalThis.Go();
             go.argv = args
             const instanceName = `wasmInstance${instance}`
             go.argv[0] = instanceName
@@ -29,23 +31,23 @@ export function runWasm(ctx: Context, file: string, args: string[]) {
             });
 
             const tryToConnect = () => {
-                if (!globalThis[instanceName]) {
+                if (!anyGlobalThis[instanceName]) {
                     setTimeout(tryToConnect,1000)
                     return
                 }
 
-                let err = globalThis[instanceName].stdout((message) => ctx.stdout.write(message))
+                let err = anyGlobalThis[instanceName].stdout((message: string) => ctx.stdout.write(message))
                 if (err) {
                     reject(err)
                 }
 
-                err = globalThis[instanceName].stderr((message) => ctx.stderr.write(message))
+                err = anyGlobalThis[instanceName].stderr((message: string) => ctx.stderr.write(message))
                 if (err) {
                     reject(err)
                 }
 
-                if (globalThis[instanceName].get) {
-                    globalThis[instanceName].get().then(resolve).catch(reject)
+                if (anyGlobalThis[instanceName].get) {
+                    anyGlobalThis[instanceName].get().then(resolve).catch(reject)
                 }
             }
             tryToConnect()

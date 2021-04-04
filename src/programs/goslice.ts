@@ -1,12 +1,12 @@
-import Program from "../program";
+import Program, { Context } from "../program";
 import {runWasm} from "../wasm";
 
 
 export default class GoSlice extends Program {
-    async run(ctx, args) {
+    async run(ctx: Context, args: string[]) {
         ctx.stdout.write("Note: Chrome is preferred as it is much faster.\n\n")
 
-        return runWasm(ctx, "goslice.wasm", args).then((gcode: string) => {
+        return runWasm(ctx, "goslice.wasm", args).then((gcode: string | null) => {
             if (!gcode) {
                 ctx.stdout.write("no gcode generated")
                 return 0

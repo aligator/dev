@@ -23,7 +23,7 @@ export default class Terminal {
         noEcho: boolean
     }) {
         if (!options?.noEcho) {
-            this.stdout.write(args.join(" ") + "\n")
+            this.stdout.write("$ " + args.join(" ") + "\n")
         }
 
         const cmd = this.commands[args[0]]
