@@ -1,5 +1,10 @@
+:root {
+    --window-border-width: 7px;
+    --window-header-height: 25px;
+    --window-header-corner-radius: 10px;
+}
+
 .window {
-    background: inherit;
     /* Default styling. */
     width: 900px;
     height: 800px;
@@ -7,36 +12,69 @@
 
     /* For window moving. */
     position: absolute;
-    z-index: 9;
+}
+
+.window.window-focused {
+    z-index: 1000;
 }
 
 .window-content {
+    margin-left: var(--window-border-width);
     /* Blur. */
     background-color: #010101AA;
-    /* Not really working very well... */
-    /* backdrop-filter: blur(5px);*/
 
-    height: calc(100% - 20px); /* window - header.height - header.padding */
+    height: calc(100% - var(--window-header-height));
     width: inherit;
 }
 
 .window-header {
+    width: calc(100% + var(--window-border-width) + var(--window-border-width));
     /* Blur. */
     background-color: #AAAAAAAA;
-    backdrop-filter: blur(5px);
 
     /* Text */
     text-align: center;
     color: #fff;
 
     /* Round corners */
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top-left-radius: var(--window-header-corner-radius);
+    border-top-right-radius: var(--window-header-corner-radius);
 
-    height: 10px;
-    padding: 10px;
+    height: var(--window-header-height);
 
     /* Move */
     cursor: move;
-    z-index: 10;
+}
+
+.window>.resizer {
+    background-color: #AAAAAAAA;
+    position: absolute;
+}
+
+.window>.resizer.top {
+    background-color: #FFFFFF00;
+    top: 0;
+    height: var(--window-border-width);
+    left:  var(--window-header-corner-radius);
+    width: 100%;
+    cursor: s-resize;
+}
+.window>.resizer.bottom {
+    height: var(--window-border-width);
+    width: calc(100% + var(--window-border-width) + var(--window-border-width));
+    cursor: s-resize;
+}
+.window>.resizer.right {
+    top: var(--window-header-height);
+    height: calc(100% - var(--window-header-height));
+    right: calc(0px - var(--window-border-width) - var(--window-border-width));
+    width: var(--window-border-width);
+    cursor: e-resize;
+}
+.window>.resizer.left {
+    top: var(--window-header-height);
+    height: calc(100% - var(--window-header-height));
+    width: var(--window-border-width);
+    left: 0px;
+    cursor: e-resize;
 }

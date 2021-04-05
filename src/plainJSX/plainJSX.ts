@@ -64,6 +64,26 @@ export class PlainJSXElement {
             (children || []).forEach(addChild)
         }
     }
+
+    delete() {
+        this.children.forEach((c) => {
+            if (c instanceof Element) {
+                c.remove()
+            }
+        })
+        this.children = []
+    }
+
+    /**
+     * returns the first element as the type T.
+     * Only use if you are really sure the type fits.
+     */
+    getFirstAs<T extends Element>(): T {
+        if (this.children.length <= 0) {
+            throw new Error("first child is no element")
+        }
+        return this.children[0] as unknown as T
+    }
 }
 
 export const createElement: (name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (PlainJSXElement | PlainJSXElement[] | string)[]) => PlainJSXElement = (name, props, ...children): PlainJSXElement => {

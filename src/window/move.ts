@@ -1,20 +1,16 @@
-const windows = document.getElementsByClassName("window")
+/*const windows = document.getElementsByClassName("window")
 for (let i=0; i<=windows.length; i++) {
     const element = windows.item(i)
     if (element) {
         dragElement(element as HTMLDivElement)
     }
-}
+}*/
 
-function dragElement(element: HTMLDivElement) {
+export function dragElement(movable: HTMLDivElement, handle: HTMLDivElement) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    if (document.getElementById(element.id + "-header")) {
-        // if present, the header is where you move the DIV from:
-        const header = document.getElementById(element.id + "-header")
-        if (header) {
-            header.onmousedown = dragMouseDown
-        }
-    }
+
+    // if present, the header is where you move the DIV from:
+    handle.onmousedown = dragMouseDown
 
     function dragMouseDown(e: MouseEvent) {
         e.preventDefault();
@@ -34,8 +30,16 @@ function dragElement(element: HTMLDivElement) {
         pos3 = e.clientX;
         pos4 = e.clientY;
         // set the element's new position:
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
+        let newPosTop = (movable.offsetTop - pos2)
+        let newPosLeft = (movable.offsetLeft - pos1)
+        if (newPosTop < 0) {
+            newPosTop = 0
+        }
+        if (newPosLeft < 0) {
+            newPosLeft = 0
+        }
+        movable.style.top = newPosTop + "px";
+        movable.style.left = newPosLeft + "px";
     }
 
     function closeDragElement() {

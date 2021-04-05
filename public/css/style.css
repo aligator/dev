@@ -37,7 +37,7 @@ h6 {font-size: small;}
     height: 100%;
 
     color: limegreen;
-    overflow: scroll;
+    overflow: auto;
 }
 
 a:link {

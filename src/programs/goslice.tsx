@@ -4,6 +4,7 @@ import {runWasm} from "../wasm";
 
 export default class GoSlice extends Program {
     async run(ctx: Context, args: string[]) {
+        ctx.stderr.write("The whole website may freeze between the log outputs.\nThis is known and cannot be worked around currently!\n")
         ctx.stdout.write("Note: Chrome is preferred as it is much faster.\n\n")
 
         return runWasm(ctx, "goslice.wasm", args).then((gcode: string | null) => {
@@ -20,7 +21,7 @@ export default class GoSlice extends Program {
 
             // Wait some time that the stdout gets fully written before posting the link.
             setTimeout(() => {
-                ctx.stdout.write(<a href={url} download={filename}>{filename + " DOWNLOAD"}</a>)
+                ctx.stdout.write(<><a href={url} download={filename}>{filename + " DOWNLOAD"}</a><br/></>)
             }, 1000)
             return 0
         }).catch((err) => {

@@ -19,7 +19,7 @@ export default class Imprint extends Program {
                 Germany<br/>
             </div>
         )
-        ctx.terminal.run(["github"])
+        ctx.terminal.runCommand(["github"])
         return 0
     } 
 } 
