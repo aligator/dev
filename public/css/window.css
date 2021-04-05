@@ -5,11 +5,6 @@
 }
 
 .window {
-    /* Default styling. */
-    width: 900px;
-    height: 800px;
-    max-height: 800px;
-
     /* For window moving. */
     position: absolute;
 }

@@ -4,6 +4,7 @@ import {PlainJSXElement} from "../plainJSX";
 import  "./resize"
 import "./move"
 import {dragElement} from "./move";
+import {makeResizeable} from "./resize";
 
 let lastWinID = 0;
 
@@ -17,7 +18,7 @@ export class Window {
     element: HTMLDivElement
 
     constructor() {
-        this.windowID = `console-window-${lastWinID}`
+        this.windowID = `window-${lastWinID}`
         lastWinID++
         const header = <div className="window-header"></div>
         const content = <div className="window-content"></div>
@@ -28,15 +29,16 @@ export class Window {
             <div id={this.windowID} className="window">
                 {header}
                 {content}
-                <div className='resizer top'></div>
-                <div className='resizer bottom'></div>
-                <div className='resizer left'></div>
-                <div className='resizer right'></div>
             </div>
         )
 
         this.element = this.component.getFirstAs()
+        this.element.style.width = "900px"
+        this.element.style.maxHeight = "800px"
+        this.element.style.height = "800px"
+
         dragElement(this.element, this.headerElement)
+        makeResizeable(this.element)
 
         this.element.addEventListener("click", (e) => {
             this.focus()

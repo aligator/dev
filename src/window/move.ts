@@ -1,15 +1,6 @@
-/*const windows = document.getElementsByClassName("window")
-for (let i=0; i<=windows.length; i++) {
-    const element = windows.item(i)
-    if (element) {
-        dragElement(element as HTMLDivElement)
-    }
-}*/
-
 export function dragElement(movable: HTMLDivElement, handle: HTMLDivElement) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
-    // if present, the header is where you move the DIV from:
     handle.onmousedown = dragMouseDown
 
     function dragMouseDown(e: MouseEvent) {
