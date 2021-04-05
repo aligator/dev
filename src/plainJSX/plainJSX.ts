@@ -79,7 +79,7 @@ export class PlainJSXElement {
      * Only use if you are really sure the type fits.
      */
     getFirstAs<T extends Element>(): T {
-        if (this.children.length <= 0) {
+        if (this.children.length <= 0 || typeof this.children[0] === "string") {
             throw new Error("first child is no element")
         }
         return this.children[0] as unknown as T

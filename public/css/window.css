@@ -15,7 +15,6 @@
 
 .window-content {
     margin-left: var(--window-border-width);
-    /* Blur. */
     background-color: #010101AA;
 
     height: calc(100% - var(--window-header-height));
@@ -24,7 +23,6 @@
 
 .window-header {
     width: calc(100% + var(--window-border-width) + var(--window-border-width));
-    /* Blur. */
     background-color: #AAAAAAAA;
 
     /* Text */

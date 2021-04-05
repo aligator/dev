@@ -1,4 +1,4 @@
-module github.com/dev/goslice
+module github.com/dev
 
 go 1.16
 
