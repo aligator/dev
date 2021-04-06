@@ -15,7 +15,7 @@ div.innerHTML = `
   <hr/>
 `
 const consoleContainer = document.getElementById('console-container')
-consoleContainer.innerHTML = div
+consoleContainer.append(div)
 ```
 I can use:
 ```ts
