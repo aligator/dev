@@ -9,7 +9,6 @@ export default class GoSlice extends Program {
 
         return runWasm(ctx, "goslice.wasm", args).then((gcode: string | null) => {
             if (!gcode) {
-                ctx.stdout.write("no gcode generated")
                 return 0
             }
 

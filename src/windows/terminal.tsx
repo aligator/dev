@@ -78,6 +78,10 @@ export default class Terminal extends Window{
             this.stdout.write("$ " + args.join(" ") + "\n")
         }
 
+        if (args[0].trim().length == 0) {
+            return
+        }
+
         const cmd = this.commands[args[0]]
         if (cmd === undefined) {
             this.stderr.write(`command '${args[0]}' not found\n`)
