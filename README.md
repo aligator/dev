@@ -18,7 +18,7 @@ const consoleContainer = document.getElementById('console-container')
 consoleContainer.append(div)
 ```
 I can use:
-```ts
+```tsx
 const div = (
     <div>
         <a href="foo.html">Hello World!</a>

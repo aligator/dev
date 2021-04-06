@@ -9,12 +9,15 @@ import Imprint from "../programs/imprint";
 import {Window} from "../window";
 import TerminalLauncher from "../programs/terminalLauncher";
 
-export default class Terminal extends Window{
+interface Runner{
+
+}
+
+export default class Terminal extends Window {
     stdout: Buffer = new Buffer()
     stderr: Buffer = new Buffer()
 
     commands: Record<string, Program> = {}
-
 
     constructor() {
         super()
@@ -23,7 +26,7 @@ export default class Terminal extends Window{
         this.setWindowName(<>Terminal</>)
         const consoleContainer = <div id="console-container"></div>
         const consoleContainerElement = (consoleContainer).getFirstAs()
-        const consoleInput = <input id="console-input" /*prefix="$"*/ tabIndex={0} />
+        const consoleInput = <input id="console-input" tabIndex={0} />
         const consoleInputElement: HTMLInputElement = (consoleInput).getFirstAs()
 
         this.setWindowContent(
@@ -39,6 +42,12 @@ export default class Terminal extends Window{
         this.commands["goslice"] = new GoSlice()
         this.commands["imprint"] = new Imprint()
         this.commands["terminal"] = new TerminalLauncher()
+        this.commands["exit"] = {
+            run: async () => {
+                this.close()
+                return 0
+            }
+        }
 
         this.onClick = (() => {
             consoleInputElement.focus()
