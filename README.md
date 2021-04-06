@@ -27,7 +27,7 @@ const div = (
 )
 
 const consoleContainer = document.getElementById('console-container')
-consoleContainer.innerHTML = div
+consoleContainer.append(...div.children)
 ```
 And this with only typescript as (dev)-dependency which I use anyway.
 
