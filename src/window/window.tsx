@@ -10,6 +10,7 @@ let lastWinID = 0;
 
 export class Window {
     readonly windowID: string
+    private readonly titleElement: HTMLDivElement
     private readonly headerElement: HTMLDivElement
     private readonly contentElement: HTMLDivElement
     onClick?: (e: MouseEvent) => void
@@ -20,9 +21,20 @@ export class Window {
     constructor() {
         this.windowID = `window-${lastWinID}`
         lastWinID++
-        const header = <div className="window-header"></div>
         const content = <div className="window-content"></div>
-        this.headerElement = (header).getFirstAs()
+        const title = <div className="window-title" />
+        const header = (
+            <div className="window-header">
+                <div className="window-buttons">
+                    <div className="window-button window-button-close" onclick={() => this.close()} />
+                </div>
+                <div className="window-header-spacer"></div>
+                {title}
+                <div className="window-header-spacer"></div>
+            </div>
+        )
+        this.titleElement = title.getFirstAs()
+        this.headerElement = header.getFirstAs()
         this.contentElement = (content).getFirstAs()
 
         this.component = (
@@ -52,8 +64,8 @@ export class Window {
     }
 
     setWindowName(component: PlainJSXElement) {
-        this.headerElement.innerHTML = ""
-        this.headerElement.append(...component.children)
+        this.titleElement.innerHTML = ""
+        this.titleElement.append(...component.children)
     }
     setWindowContent(component: PlainJSXElement) {
         this.contentElement.innerHTML = ""

@@ -2,6 +2,7 @@
     --window-border-width: 7px;
     --window-header-height: 25px;
     --window-header-corner-radius: 10px;
+    --window-button-size: 11px;
 }
 
 .window {
@@ -22,6 +23,9 @@
 }
 
 .window-header {
+    display: flex;
+    flex-direction: row;
+
     width: calc(100% + var(--window-border-width) + var(--window-border-width));
     background-color: #AAAAAAAA;
 
@@ -37,6 +41,31 @@
 
     /* Move */
     cursor: move;
+}
+
+.window-buttons {
+    display: flex;
+    flex-direction: row;
+}
+
+.window-button {
+    cursor: pointer;
+
+    width: var(--window-button-size);
+    height: var(--window-button-size);
+
+    margin: calc((var(--window-header-height) - var(--window-button-size)) / 2);
+    border-radius: var(--window-header-height)
+}
+
+.window-button-close {
+    background-color: #c92525;
+    border: 1px solid #a00000;
+    color: black;
+}
+
+.window-header-spacer {
+    flex-grow: 1;
 }
 
 .window>.resizer {
