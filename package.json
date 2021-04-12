@@ -11,7 +11,8 @@
     "build:go": "go build -o ./public/goslice.wasm ./go/goslice",
     "dist-public:dev": "cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp/index.html && cp tmp/index.html build/index.html",
     "watch": "tsc-watch -w --onSuccess \"browserify tmp/index.js -o build/js/bundle.js\"",
-    "start": "node serve.js"
+    "start": "node serve.js",
+    "start:no-go": "node serve.js --no-go"
   },
   "devDependencies": {
     "browserify": "^17.0.0",
