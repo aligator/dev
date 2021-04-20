@@ -13,7 +13,7 @@ export default class GCodeViewer extends Window {
             if (!this.renderer) {
                 return
             }
-            this.renderer.stop()
+            this.renderer.destroy()
             this.renderer = undefined
         }
 
@@ -23,8 +23,17 @@ export default class GCodeViewer extends Window {
             <div id="gcode-viewer-container">Loading...</div>
         )
 
-        fetch("/gopher.stl.gcode").then((res) => res.text().then((gCode) => {
-            this.renderer = new GCodeRenderer(gCode, this.width(), this.height())
+        const getGcode = async () => {
+            const res = await fetch("gopher.stl.gcode")
+            if (!res.body) {
+                this.setWindowContent(
+                    <div id="gcode-viewer-container">No GCode</div>
+                ) 
+                return
+            }
+    
+            const gcode = await res.text()
+            this.renderer = new GCodeRenderer(gcode, this.width(), this.height())
             this.setWindowContent(
                 <>{this.renderer.element()}</>
             )
@@ -34,9 +43,11 @@ export default class GCodeViewer extends Window {
                 if (!this.renderer) {
                     return
                 }
-                
+
                 this.renderer.resize(this.width(), this.height())
             }
-        }))
+        }
+
+        getGcode()
     }
 }
