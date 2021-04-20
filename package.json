@@ -14,6 +14,7 @@
     "start": "node serve.js"
   },
   "devDependencies": {
+    "@types/three": "^0.127.1",
     "browserify": "^17.0.0",
     "chokidar": "^3.5.1",
     "connect": "^3.7.0",
@@ -21,5 +22,8 @@
     "serve-static": "^1.14.1",
     "tsc-watch": "^4.2.9",
     "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "three": "^0.127.0"
   }
 }

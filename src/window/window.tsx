@@ -13,6 +13,8 @@ export class Window {
     private readonly titleElement: HTMLDivElement
     private readonly headerElement: HTMLDivElement
     private readonly contentElement: HTMLDivElement
+
+    onClose?: () => void
     onClick?: (e: MouseEvent) => void
 
     component: PlainJSXElement
@@ -63,6 +65,14 @@ export class Window {
         getRoot().append(this.element)
     }
 
+    width(): number {
+        return this.element.clientWidth
+    }
+
+    height(): number {
+        return this.element.clientHeight - this.headerElement.clientHeight
+    }
+
     setWindowName(component: PlainJSXElement) {
         this.titleElement.innerHTML = ""
         this.titleElement.append(...component.children)
@@ -72,6 +82,10 @@ export class Window {
         this.contentElement.append(...component.children)
     }
     close() {
+        if (this.onClose) {
+            this.onClose()
+        }
+        
         this.component.delete()
     }
     focus() {

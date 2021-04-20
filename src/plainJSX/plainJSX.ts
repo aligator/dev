@@ -9,7 +9,7 @@ export type IntrinsicElements = HTMLElements<HTMLElementTagNameMap>
 export class PlainJSXElement {
     children: (Element | string)[] = []
 
-    get outerHTMdL(): string {
+    get outerHTML(): string {
         let result = ""
 
         this.children.forEach((c) => {
@@ -27,7 +27,7 @@ export class PlainJSXElement {
         return result
     }
    
-    constructor(name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (PlainJSXElement | PlainJSXElement[] | string)[]) {
+    constructor(name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (Element | PlainJSXElement | PlainJSXElement[] | string)[]) {
         let elem: Element
     
         if (name.length !== 0) {
@@ -38,9 +38,11 @@ export class PlainJSXElement {
                 })
             }
 
-            const addChild = (child: PlainJSXElement | PlainJSXElement[] | string) => {
+            const addChild = (child: Element | PlainJSXElement | PlainJSXElement[] | string) => {
                 if (Array.isArray(child)) {
                     child.forEach(addChild)
+                } else if (child instanceof Element) {
+                    elem.append(child)
                 } else if (child instanceof PlainJSXElement) {
                     elem.append(...child.children)
                 } else if (typeof child == "string") {
@@ -52,9 +54,11 @@ export class PlainJSXElement {
             this.children.push(elem)
         } else {
             // just an fragment -> just save the children but this time direct into the root child list
-            const addChild = (child: PlainJSXElement | PlainJSXElement[] | string) => {
+            const addChild = (child: Element | PlainJSXElement | PlainJSXElement[] | string) => {
                 if (Array.isArray(child)) {
                     child.forEach(addChild)
+                } else if (child instanceof Element) {
+                    this.children.push(child)
                 } else if (child instanceof PlainJSXElement) {
                     this.children.push(...child.children)
                 } else if (typeof child == "string") {

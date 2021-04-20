@@ -1,48 +1,50 @@
 Arguments: 
-  /home/johannes/.nvm/versions/node/v14.16.0/bin/node /usr/bin/yarn add -D Chokidar
+  /usr/bin/node /usr/bin/yarn add threejs
 
 PATH: 
-  /home/johannes/.nix-profile/bin:/home/johannes/.nvm/versions/node/v14.16.0/bin:/home/johannes/.nix-profile/bin:/home/johannes/.nix-profile/bin:/nix/var/nix/profiles/default/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/mnt/android/build/bin:/home/johannes/.cargo/bin:/home/johannes/bin:/home/johannes/.local/bin:/home/johannes/go/bin
+  /home/johannes/go/bin:/home/johannes/.platformio/penv/bin:/home/johannes/.platformio/penv:/home/johannes/.platformio/python3/bin:/home/johannes/.local/bin:/home/johannes/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/opt/android-sdk/platform-tools:/opt/android-sdk/tools:/opt/android-sdk/tools/bin:/home/johannes/.dotnet/tools:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:/var/lib/snapd/snap/bin
 
 Yarn version: 
   1.22.10
 
 Node version: 
-  14.16.0
+  15.14.0
 
 Platform: 
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/Chokidar: Not found
+  Error: https://registry.yarnpkg.com/threejs: Not found
       at Request.params.callback [as _callback] (/usr/lib/node_modules/yarn/lib/cli.js:66988:18)
       at Request.self.callback (/usr/lib/node_modules/yarn/lib/cli.js:140749:22)
-      at Request.emit (events.js:315:20)
+      at Request.emit (node:events:369:20)
       at Request.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:141721:10)
-      at Request.emit (events.js:315:20)
+      at Request.emit (node:events:369:20)
       at IncomingMessage.<anonymous> (/usr/lib/node_modules/yarn/lib/cli.js:141643:12)
-      at Object.onceWrapper (events.js:421:28)
-      at IncomingMessage.emit (events.js:327:22)
-      at endReadableNT (internal/streams/readable.js:1327:12)
-      at processTicksAndRejections (internal/process/task_queues.js:80:21)
+      at Object.onceWrapper (node:events:475:28)
+      at IncomingMessage.emit (node:events:381:22)
+      at endReadableNT (node:internal/streams/readable:1307:12)
+      at processTicksAndRejections (node:internal/process/task_queues:81:21)
 
 npm manifest: 
   {
     "name": "aligator.dev",
     "version": "1.0.0",
     "description": "aligator.dev source",
-    "main": "index.tsx",
+    "main": "src/index.tsx",
     "repository": "https://github.com/aligator/.dev",
     "author": "aligator",
     "license": "MIT",
     "scripts": {
-      "build": "tsc --outDir tmp src/index.tsx && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
-      "post-compile": "browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp.html && mv tmp.html build/index.html",
-      "watch": "tsc-watch -w --outDir tmp src/index.tsx --onSuccess \"yarn post-compile\"",
+      "dist": "tsc && browserify tmp/index.js -o build/js/bundle.js && cp -R public/* build",
+      "build:go": "go build -o ./public/goslice.wasm ./go/goslice",
+      "dist-public:dev": "cp -R public/* build && sed '/<\\/title>/ r dev.html' build/index.html > tmp/index.html && cp tmp/index.html build/index.html",
+      "watch": "tsc-watch -w --onSuccess \"browserify tmp/index.js -o build/js/bundle.js\"",
       "start": "node serve.js"
     },
     "devDependencies": {
       "browserify": "^17.0.0",
+      "chokidar": "^3.5.1",
       "connect": "^3.7.0",
       "livereload": "^0.9.3",
       "serve-static": "^1.14.1",
@@ -344,7 +346,7 @@ Lockfile:
       function-bind "^1.1.1"
       get-intrinsic "^1.0.2"
   
-  chokidar@^3.5.0:
+  chokidar@^3.5.0, chokidar@^3.5.1:
     version "3.5.1"
     resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.5.1.tgz#ee9ce7bbebd2b79f49f304799d5468e31e14e68a"
     integrity sha512-9+s+Od+W0VJJzawDma/gvBNQqkTiqYTWLuZoyAsivsI4AaWTCzHG06/TMjsf1cYe9Cb97UCEhjz7HvnPk2p/tw==

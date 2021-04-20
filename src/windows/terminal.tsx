@@ -8,6 +8,7 @@ import Motd from "../programs/motd";
 import Imprint from "../programs/imprint";
 import {Window} from "../window";
 import TerminalLauncher from "../programs/terminalLauncher";
+import GCodeViewerLauncher from "../programs/gCodeViewerLauncher";
 
 interface Runner{
 
@@ -18,7 +19,7 @@ export default class Terminal extends Window {
     stderr: Buffer = new Buffer()
 
     commands: Record<string, Program> = {}
-
+  
     constructor() {
         super()
         this.focus()
@@ -42,6 +43,7 @@ export default class Terminal extends Window {
         this.commands["goslice"] = new GoSlice()
         this.commands["imprint"] = new Imprint()
         this.commands["terminal"] = new TerminalLauncher()
+        this.commands["gcode"] = new GCodeViewerLauncher()
         this.commands["exit"] = {
             run: async () => {
                 this.close()
