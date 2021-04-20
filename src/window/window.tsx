@@ -16,6 +16,7 @@ export class Window {
 
     onClose?: () => void
     onClick?: (e: MouseEvent) => void
+    onResize?: (width: number, height: number) => void
 
     component: PlainJSXElement
     element: HTMLDivElement
@@ -52,7 +53,11 @@ export class Window {
         this.element.style.height = "800px"
 
         dragElement(this.element, this.headerElement)
-        makeResizeable(this.element)
+        makeResizeable(this.element, (width: number, height: number) => {
+            if (this.onResize) {
+                this.onResize(width, height)
+            }
+        })
 
         this.element.addEventListener("click", (e) => {
             this.focus()

@@ -30,6 +30,13 @@ export default class GCodeViewer extends Window {
             )
 
             this.renderer.render()
+            this.onResize = () => {
+                if (!this.renderer) {
+                    return
+                }
+                
+                this.renderer.resize(this.width(), this.height())
+            }
         }))
     }
 }

@@ -5,8 +5,9 @@ export class GCodeRenderer {
     private running: boolean = false   
     private readonly gCode: string
     private readonly scene: Scene
-    private readonly camera: Camera
     private readonly renderer: Renderer
+
+    private camera: Camera | undefined
 
     private cube: Mesh
 
@@ -14,7 +15,6 @@ export class GCodeRenderer {
         console.log("init")
         this.gCode = gCode
         this.scene = new Scene()
-        this.camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
         this.renderer = new WebGLRenderer()
         
         this.renderer.setSize(width, height)
@@ -23,9 +23,14 @@ export class GCodeRenderer {
         const material = new MeshBasicMaterial({color: 0x00ff00})
         this.cube = new Mesh(geometry, material)
         this.scene.add(this.cube)
-        this.camera.position.z = 5
+
+        this.initCamera(width, height)
     }
 
+    private initCamera(width: number, height: number) {
+        this.camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
+        this.camera.position.z = 5
+    }
 
     render() {
         this.running = true
@@ -33,7 +38,7 @@ export class GCodeRenderer {
     }
 
     private loop = () => {
-        if (!this.running) {
+        if (!this.running || !this.camera) {
             return
         }
 
@@ -50,5 +55,11 @@ export class GCodeRenderer {
 
     stop() {
         this.running = false
+    }
+
+    resize(width: number, height: number) {
+        console.log("resize", width, height)
+        this.initCamera(width, height)
+        this.renderer.setSize(width, height)
     }
 }
