@@ -1,5 +1,6 @@
-import three, { Box3, BoxGeometry, BufferGeometry, Camera, CylinderGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera, Renderer, Scene, TorusGeometry, Vector3, VideoTexture, WebGLRenderer } from 'three'
+import { Box3, BufferGeometry, Mesh, PerspectiveCamera, Color, Renderer, Scene, Vector3, WebGLRenderer } from 'three'
 import { OrbitControls } from 'three-orbitcontrols-ts'
+import { MeshLine, MeshLineMaterial } from 'three.meshline';
 
 export class GCodeRenderer {
 
@@ -10,7 +11,7 @@ export class GCodeRenderer {
 
     private camera: PerspectiveCamera
 
-    private lineMaterial = new LineBasicMaterial({color: 0x00ff00})
+    private lineMaterial = new MeshLineMaterial({color: new Color("#29beb0"), lineWidth: 0.05})
 
     private lines: BufferGeometry[] = []
 
@@ -53,6 +54,10 @@ export class GCodeRenderer {
         const center = new Vector3()
         boundingBox.getCenter(center);    
         this.camera.lookAt(center)
+        if (this.cameraControl) {
+            this.cameraControl.target = center
+        }
+        
     }
 
     private calcMinMax(newPoint: Vector3) {
@@ -82,8 +87,6 @@ export class GCodeRenderer {
         if (newPoint.z <  this.min.z) {
             this.min.z = newPoint.z
         }
-
-       this.fitCamera()
     }
 
     private async init() {
@@ -106,7 +109,6 @@ export class GCodeRenderer {
             }
 
             const cmd = line.split(" ")
-            //console.log(cmd)
             if (cmd[0] === "G0" || cmd[0] === "G1") {
                 const x = parseValue(cmd.find((v) => v[0] === "X")) || lastX
                 const y = parseValue(cmd.find((v) => v[0] === "Y")) || lastY
@@ -118,9 +120,10 @@ export class GCodeRenderer {
                 lastZ = z
 
                 if (e === 0) {
-                    const lineGeometry = new BufferGeometry().setFromPoints(points);
+                    const lineGeometry = new MeshLine();
+                    lineGeometry.setPoints(points);
                     this.lines.push(lineGeometry)
-                    const line = new Line(lineGeometry, this.lineMaterial)
+                    const line = new Mesh(lineGeometry, this.lineMaterial)
                     this.scene.add(line)
                     const last = points[points.length-1]
                     points = last ? [last] : []
@@ -132,12 +135,14 @@ export class GCodeRenderer {
             }
         })
 
-        const lineGeometry = new BufferGeometry().setFromPoints(points);
+        const lineGeometry = new MeshLine();
+        lineGeometry.setPoints(points);
         this.lines.push(lineGeometry)
-        const line = new Line(lineGeometry, this.lineMaterial)
+        const line = new Mesh(lineGeometry, this.lineMaterial)
         this.scene.add(line)
         points = []
         
+        this.fitCamera()
     }
 
     render() {
