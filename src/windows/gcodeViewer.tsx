@@ -13,7 +13,7 @@ export default class GCodeViewer extends Window {
             if (!this.renderer) {
                 return
             }
-            this.renderer.destroy()
+            this.renderer.dispose()
             this.renderer = undefined
         }
 

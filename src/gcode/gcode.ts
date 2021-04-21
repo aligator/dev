@@ -1,12 +1,12 @@
-import three, { BoxGeometry, BufferGeometry, Camera, CylinderGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera, Renderer, Scene, TorusGeometry, Vector3, WebGLRenderer } from 'three'
-import { CameraControl } from './camera'
+import three, { Box3, BoxGeometry, BufferGeometry, Camera, CylinderGeometry, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, PerspectiveCamera, Renderer, Scene, TorusGeometry, Vector3, VideoTexture, WebGLRenderer } from 'three'
+import { OrbitControls } from 'three-orbitcontrols-ts'
 
 export class GCodeRenderer {
 
     private running: boolean = false   
     private readonly scene: Scene
     private readonly renderer: Renderer
-    private readonly cameraControl: CameraControl 
+    private cameraControl?: OrbitControls 
 
     private camera: PerspectiveCamera
 
@@ -16,27 +16,94 @@ export class GCodeRenderer {
 
     private readonly gCode: string
 
+    private min?: Vector3
+    private max?: Vector3
+
     constructor(gCode: string, width: number, height: number) {
         console.log("init")
         this.scene = new Scene()
         this.renderer = new WebGLRenderer()
         this.renderer.setSize(width, height)
-        this.camera = GCodeRenderer.newCamera(width, height)
+        this.camera = this.newCamera(width, height)
+
         this.gCode = gCode
         
-        this.cameraControl = new CameraControl(this.renderer, this.camera, () => undefined)
-
         this.init()
     }
 
-    private static newCamera(width: number, height: number) {
+    private newCamera(width: number, height: number) {
         const camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
-        camera.position.z = 5
+        camera.position.z = 200
+
+        this.cameraControl = new OrbitControls(camera, this.renderer.domElement)
+        this.cameraControl.enablePan = true
+        this.cameraControl.enableZoom = true
+        this.cameraControl.minDistance = -Infinity;
+        this.cameraControl.maxDistance = Infinity;
         return camera
     }
 
+    private fitCamera(offset?: number) {
+        offset = offset || 1.25;
+    
+        const boundingBox = new Box3(this.min, this.max);
+        const center = new Vector3()
+        boundingBox.getCenter(center);
+    
+        const size = new Vector3()
+        boundingBox.getSize(size);
+    
+        // get the max side of the bounding box (fits to width OR height as needed )
+        const maxDim = Math.max( size.x, size.y, size.z );
+        const fov = this.camera.fov * ( Math.PI / 180 );
+        let cameraZ = Math.abs( maxDim / 4 * Math.tan( fov * 2 ) );
+    
+        cameraZ *= offset; // zoom out a little so that objects don't fill the screen
+    
+        this.camera.position.z = cameraZ;
+    
+        //const minZ = boundingBox.min.z;
+        //const cameraToFarEdge = ( minZ < 0 ) ? -minZ + cameraZ : cameraZ - minZ;
+    
+        //this.camera.far = cameraToFarEdge * 3;
+        this.camera.updateProjectionMatrix();
+    
+        this.camera.lookAt( center )
+    }
+
+    private calcMinMax(newPoint: Vector3) {
+        if (this.min === undefined) {
+            this.min = newPoint
+        }
+        if (this.max === undefined) {
+            this.max = newPoint
+        }
+
+        if (newPoint.x >  this.max.x) {
+            this.max.x = newPoint.x
+        }
+        if (newPoint.y > this.max.y) {
+            this.max.y = newPoint.y
+        }
+        if (newPoint.z > this.max.z) {
+            this.max.z = newPoint.z
+        }
+
+        if (newPoint.x <  this.min.x) {
+            this.min.x = newPoint.x
+        }
+        if (newPoint.y <  this.min.y) {
+            this.min.y = newPoint.y
+        }
+        if (newPoint.z <  this.min.z) {
+            this.min.z = newPoint.z
+        }
+
+    //   this.fitCamera()
+    }
+
     private async init() {
-        let points: Vector3[] = []
+        let points: Vector3[] = [new Vector3(0, 0, 0)]
 
         function parseValue(value?: string): number | undefined {
             if (!value) {
@@ -45,15 +112,17 @@ export class GCodeRenderer {
             return Number.parseFloat(value.substring(1))
         }
 
+        let lastX = 0
+        let lastY = 0
+        let lastZ = 0
+
         this.gCode.split("\n").forEach((line)=> {
             if (line[0] === ";") {
                 return
             }
 
             const cmd = line.split(" ")
-            let lastX = 0
-            let lastY = 0
-            let lastZ = 0
+            //console.log(cmd)
             if (cmd[0] === "G0" || cmd[0] === "G1") {
                 const x = parseValue(cmd.find((v) => v[0] === "X")) || lastX
                 const y = parseValue(cmd.find((v) => v[0] === "Y")) || lastY
@@ -65,15 +134,17 @@ export class GCodeRenderer {
                 lastZ = z
 
                 if (e === 0) {
-                   // console.log(points)
                     const lineGeometry = new BufferGeometry().setFromPoints(points);
                     this.lines.push(lineGeometry)
                     const line = new Line(lineGeometry, this.lineMaterial)
                     this.scene.add(line)
-                    points = []
+                    const last = points[points.length-1]
+                    points = last ? [last] : []
                 }
 
-                points.push(new Vector3(x, y, z))
+                const newPoint = new Vector3(x, y, z)
+                this.calcMinMax(newPoint)
+                points.push(newPoint)       
             }
         })
 
@@ -109,14 +180,14 @@ export class GCodeRenderer {
         return this.renderer.domElement
     }
 
-    destroy() {
+    dispose() {
         this.running = false
         this.lines.forEach(l => l.dispose())
+        this.cameraControl?.dispose()
     }
 
     resize(width: number, height: number) {
-        console.log("resize", width, height)
-        this.camera = GCodeRenderer.newCamera(width, height)
+        this.camera = this.newCamera(width, height)
         this.renderer.setSize(width, height)
     }
 }
