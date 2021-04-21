@@ -35,6 +35,9 @@ export class GCodeRenderer {
         const camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
         camera.position.z = 200
 
+        if (this.cameraControl) {
+            this.cameraControl.dispose()
+        }
         this.cameraControl = new OrbitControls(camera, this.renderer.domElement)
         this.cameraControl.enablePan = true
         this.cameraControl.enableZoom = true
@@ -48,27 +51,8 @@ export class GCodeRenderer {
     
         const boundingBox = new Box3(this.min, this.max);
         const center = new Vector3()
-        boundingBox.getCenter(center);
-    
-        const size = new Vector3()
-        boundingBox.getSize(size);
-    
-        // get the max side of the bounding box (fits to width OR height as needed )
-        const maxDim = Math.max( size.x, size.y, size.z );
-        const fov = this.camera.fov * ( Math.PI / 180 );
-        let cameraZ = Math.abs( maxDim / 4 * Math.tan( fov * 2 ) );
-    
-        cameraZ *= offset; // zoom out a little so that objects don't fill the screen
-    
-        this.camera.position.z = cameraZ;
-    
-        //const minZ = boundingBox.min.z;
-        //const cameraToFarEdge = ( minZ < 0 ) ? -minZ + cameraZ : cameraZ - minZ;
-    
-        //this.camera.far = cameraToFarEdge * 3;
-        this.camera.updateProjectionMatrix();
-    
-        this.camera.lookAt( center )
+        boundingBox.getCenter(center);    
+        this.camera.lookAt(center)
     }
 
     private calcMinMax(newPoint: Vector3) {
@@ -99,7 +83,7 @@ export class GCodeRenderer {
             this.min.z = newPoint.z
         }
 
-    //   this.fitCamera()
+       this.fitCamera()
     }
 
     private async init() {

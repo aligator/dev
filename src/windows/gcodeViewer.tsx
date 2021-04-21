@@ -6,7 +6,7 @@ import { GCodeRenderer } from "../gcode/gcode";
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
 
-    constructor() {
+    constructor(gcode?: string) {
         super()
         this.focus()
         this.onClose = () => {
@@ -24,16 +24,20 @@ export default class GCodeViewer extends Window {
         )
 
         const getGcode = async () => {
-            const res = await fetch("gopher.stl.gcode")
-            if (!res.body) {
-                this.setWindowContent(
-                    <div id="gcode-viewer-container">No GCode</div>
-                ) 
-                return
+            let gcodeString = gcode
+            if (!gcodeString) {
+                const res = await fetch("gopher.stl.gcode")
+                if (!res.body) {
+                    this.setWindowContent(
+                        <div id="gcode-viewer-container">No GCode</div>
+                    ) 
+                    return
+                }
+        
+                gcodeString = await res.text()
             }
-    
-            const gcode = await res.text()
-            this.renderer = new GCodeRenderer(gcode, this.width(), this.height())
+            
+            this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height())
             this.setWindowContent(
                 <>{this.renderer.element()}</>
             )
