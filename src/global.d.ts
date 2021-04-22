@@ -1,5 +1,5 @@
 declare module 'three.meshline' { 
-    import THREE, { NumberKeyframeTrack } from 'three'
+    import THREE from 'three'
 
     class MeshLine extends THREE.BufferGeometry {
         setPoints(points: THREE.Vector3[]): void

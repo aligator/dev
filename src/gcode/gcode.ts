@@ -1,6 +1,7 @@
 import { Box3, BufferGeometry, Mesh, PerspectiveCamera, Color, Renderer, Scene, Vector3, WebGLRenderer } from 'three'
-import { OrbitControls } from 'three-orbitcontrols-ts'
+import { OrbitControls } from '@three-ts/orbit-controls'
 import { MeshLine, MeshLineMaterial } from 'three.meshline';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
 export class GCodeRenderer {
 
@@ -14,6 +15,7 @@ export class GCodeRenderer {
     private lineMaterial = new MeshLineMaterial({color: new Color("#29beb0"), lineWidth: 0.05})
 
     private lines: BufferGeometry[] = []
+    private line?: BufferGeometry
 
     private readonly gCode: string
 
@@ -89,6 +91,12 @@ export class GCodeRenderer {
         }
     }
 
+    private addLine(points: Vector3[]) {
+        const lineGeometry = new MeshLine();
+        lineGeometry.setPoints(points);
+        this.lines.push(lineGeometry)
+    }
+
     private async init() {
         let points: Vector3[] = [new Vector3(0, 0, 0)]
 
@@ -120,11 +128,8 @@ export class GCodeRenderer {
                 lastZ = z
 
                 if (e === 0) {
-                    const lineGeometry = new MeshLine();
-                    lineGeometry.setPoints(points);
-                    this.lines.push(lineGeometry)
-                    const line = new Mesh(lineGeometry, this.lineMaterial)
-                    this.scene.add(line)
+                    this.addLine(points)
+
                     const last = points[points.length-1]
                     points = last ? [last] : []
                 }
@@ -135,11 +140,13 @@ export class GCodeRenderer {
             }
         })
 
-        const lineGeometry = new MeshLine();
-        lineGeometry.setPoints(points);
-        this.lines.push(lineGeometry)
-        const line = new Mesh(lineGeometry, this.lineMaterial)
-        this.scene.add(line)
+        this.addLine(points)
+        console.log(this.lines)
+       
+        this.line = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
+
+        console.log(this.line)
+        this.scene.add(new Mesh(this.line, this.lineMaterial))
         points = []
         
         this.fitCamera()
@@ -173,6 +180,7 @@ export class GCodeRenderer {
         this.running = false
         this.lines.forEach(l => l.dispose())
         this.cameraControl?.dispose()
+        this.line?.dispose()
     }
 
     resize(width: number, height: number) {
