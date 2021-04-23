@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "dist": "gulp dist",
-    "build:go": "go build -o ./public/goslice.wasm ./go/goslice",
+    "build:go": "GOOS=\"js\" GOARCH=\"wasm\" go build -o ./public/goslice.wasm ./go/goslice",
     "start": "gulp"
   },
   "devDependencies": {

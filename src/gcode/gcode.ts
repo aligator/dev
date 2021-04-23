@@ -7,15 +7,15 @@ export class GCodeRenderer {
 
     private running: boolean = false   
     private readonly scene: Scene
-    private readonly renderer: Renderer
+    private readonly renderer: WebGLRenderer
     private cameraControl?: OrbitControls 
 
     private camera: PerspectiveCamera
 
-    private lineMaterial = new MeshLineMaterial({color: new Color("#29beb0"), lineWidth: 0.05})
+    private lineMaterial = new MeshLineMaterial({color: new Color("#29beb0"), lineWidth: 0.1})
 
     private lines: BufferGeometry[] = []
-    private line?: BufferGeometry
+    private combinedLine?: BufferGeometry
 
     private readonly gCode: string
 
@@ -27,6 +27,7 @@ export class GCodeRenderer {
         this.scene = new Scene()
         this.renderer = new WebGLRenderer()
         this.renderer.setSize(width, height)
+        this.renderer.setClearColor(0x808080, 1)
         this.camera = this.newCamera(width, height)
 
         this.gCode = gCode
@@ -44,17 +45,17 @@ export class GCodeRenderer {
         this.cameraControl = new OrbitControls(camera, this.renderer.domElement)
         this.cameraControl.enablePan = true
         this.cameraControl.enableZoom = true
-        this.cameraControl.minDistance = -Infinity;
-        this.cameraControl.maxDistance = Infinity;
+        this.cameraControl.minDistance = -Infinity
+        this.cameraControl.maxDistance = Infinity
         return camera
     }
 
     private fitCamera(offset?: number) {
-        offset = offset || 1.25;
+        offset = offset || 1.25
     
         const boundingBox = new Box3(this.min, this.max);
         const center = new Vector3()
-        boundingBox.getCenter(center);    
+        boundingBox.getCenter(center)   
         this.camera.lookAt(center)
         if (this.cameraControl) {
             this.cameraControl.target = center
@@ -94,6 +95,8 @@ export class GCodeRenderer {
     private addLine(points: Vector3[]) {
         const lineGeometry = new MeshLine();
         lineGeometry.setPoints(points);
+
+        if (points)
         this.lines.push(lineGeometry)
     }
 
@@ -141,12 +144,10 @@ export class GCodeRenderer {
         })
 
         this.addLine(points)
-        console.log(this.lines)
        
-        this.line = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
+        this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
 
-        console.log(this.line)
-        this.scene.add(new Mesh(this.line, this.lineMaterial))
+        this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
         points = []
         
         this.fitCamera()
@@ -165,11 +166,11 @@ export class GCodeRenderer {
         if (!this.running || !this.camera) {
             return
         }
-        requestAnimationFrame(this.loop);
+        requestAnimationFrame(this.loop)
 
         this.update()
 
-	    this.renderer.render(this.scene, this.camera);
+	    this.renderer.render(this.scene, this.camera)
     }
 
     element(): HTMLCanvasElement {
@@ -180,7 +181,7 @@ export class GCodeRenderer {
         this.running = false
         this.lines.forEach(l => l.dispose())
         this.cameraControl?.dispose()
-        this.line?.dispose()
+        this.combinedLine?.dispose()
     }
 
     resize(width: number, height: number) {
