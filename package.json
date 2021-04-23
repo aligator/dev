@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "@three-ts/orbit-controls": "^1.4.7",
-    "three": "^0.127.0",
-    "three.meshline": "^1.3.0"
+    "three": "^0.127.0"
   }
 }

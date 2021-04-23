@@ -1,15 +1,26 @@
 declare module 'three.meshline' { 
-    import THREE from 'three'
+    import THREE, { Vector3 } from 'three'
 
     class MeshLine extends THREE.BufferGeometry {
-        setPoints(points: THREE.Vector3[]): void
+        constructor();
+        geometry: MeshLine;
+        points: Float32Array|Array<number>;
+        isMeshLine: boolean;
+    
+        setPoints(points: Vector3[], wcb?: (p: number) => any): void;
+        setMatrixWorld(matrixWorld: THREE.Matrix4): void;
+        setGeometry(g: THREE.BufferGeometry, c: (p: number) => any): void;
+        raycast: (raycaster: THREE.Raycaster, intersects: THREE.Intersection[]) => void;
+        compareV3(a: number, b: number): number;
+        copyV3(a: number): [number, number, number];
     }
+
     class MeshLineMaterial extends THREE.Material {
         constructor(options: {
             /**
              * a THREE.Texture to paint along the line (requires useMap set to true)
              */
-            map?: THREE.Texture[];
+            map?: THREE.Texture;
 
             /**
              * tells the material to use map (0 - solid color, 1 use texture)
@@ -19,7 +30,7 @@ declare module 'three.meshline' {
             /**
              * a THREE.Texture to use as alpha along the line (requires useAlphaMap set to true)
              */
-            alphaMap?: THREE.Texture[];
+            alphaMap?: THREE.Texture;
 
             /**
              * tells the material to use alphaMap (0 - no alpha, 1 modulate alpha)
@@ -76,5 +87,24 @@ declare module 'three.meshline' {
              */
             lineWidth?: number;
         })
+
+        linwWidth: number;
+        map: THREE.Texture;
+        useMap: number;
+        alphaMap: THREE.Texture;
+        useAlphaMap: number;
+        color: THREE.Color|string|number;
+        opacity: number;
+        resolution: THREE.Vector2;
+        sizeAttenuation: number;
+        dashArray: number;
+        dashOffset: number;
+        dashRatio: number;
+        useDesh: number;
+        visibility: number;
+        alphaTest: number;
+        repeat: THREE.Vector2;
     }
+
+    function MeshLineRaycast(raycaster: THREE.Raycaster, intersects: THREE.Intersection[]): void;
 }

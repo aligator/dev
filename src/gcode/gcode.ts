@@ -1,7 +1,50 @@
-import { Box3, BufferGeometry, Mesh, PerspectiveCamera, Color, Renderer, Scene, Vector3, WebGLRenderer } from 'three'
+import { Box3, BufferGeometry, Mesh, PerspectiveCamera, Color, Scene, Vector3, WebGLRenderer, Texture, DataTexture, RGBFormat, MeshBasicMaterial, TubeGeometry, Curve, CurvePath, Vector3Tuple, LineCurve, LineCurve3 } from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
-import { MeshLine, MeshLineMaterial } from 'three.meshline';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
+
+const width = 512;
+const height = 512;
+
+const size = width * height;
+const dataRed = new Uint8Array( 3 * size );
+const dataGreen = new Uint8Array( 3 * size );
+const colorRed = new Color( 0xff0000 );
+const colorGreen = new Color( 0x00ff00 );
+
+let r = Math.floor( colorRed.r * 255 );
+let g = Math.floor( colorRed.g * 255 );
+let b = Math.floor( colorRed.b * 255 );
+
+for ( let i = 0; i < size; i ++ ) {
+
+	const stride = i * 3;
+
+	dataRed[ stride ] = r;
+	dataRed[ stride + 1 ] = g;
+	dataRed[ stride + 2 ] = b;
+
+}
+
+r = Math.floor( colorGreen.r * 255 );
+g = Math.floor( colorGreen.g * 255 );
+b = Math.floor( colorGreen.b * 255 );
+
+for ( let i = 0; i < size; i ++ ) {
+
+	const stride = i * 3;
+
+	dataGreen[ stride ] = r;
+	dataGreen[ stride + 1 ] = g;
+	dataGreen[ stride + 2 ] = b;
+
+}
+
+// used the buffer to create a DataTexture
+
+const textureRed = new DataTexture( dataRed, width, height, RGBFormat );
+const textureGreen = new DataTexture( dataGreen, width, height, RGBFormat );
+
+console.log(textureRed, textureGreen)
 
 export class GCodeRenderer {
 
@@ -12,9 +55,12 @@ export class GCodeRenderer {
 
     private camera: PerspectiveCamera
 
-    private lineMaterial = new MeshLineMaterial({color: new Color("#29beb0"), lineWidth: 0.1})
+    private lineMaterial = new MeshBasicMaterial({ 
+        color: new Color("#0000ff"),
+     //   map: textureRed,
+    })
 
-    private lines: BufferGeometry[] = []
+    private lines: TubeGeometry[] = []
     private combinedLine?: BufferGeometry
 
     private readonly gCode: string
@@ -92,16 +138,20 @@ export class GCodeRenderer {
         }
     }
 
-    private addLine(points: Vector3[]) {
-        const lineGeometry = new MeshLine();
-        lineGeometry.setPoints(points);
+    private addLine(points: CurvePath<Vector3>) {
+        if (points.getPoints().length <= 0) {
+            return
+        }
 
-        if (points)
+        // TODO: why do I have to calculate the length * 2? With less the lines are as round.
+        const lineGeometry = new TubeGeometry(points, points.getPoints().length * 2, 0.4, 8, false);
         this.lines.push(lineGeometry)
     }
 
     private async init() {
-        let points: Vector3[] = [new Vector3(0, 0, 0)]
+        let curve: CurvePath<Vector3> = new CurvePath()
+        let lastPoint: Vector3 = new Vector3(0, 0, 0)
+        this.calcMinMax(lastPoint)
 
         function parseValue(value?: string): number | undefined {
             if (!value) {
@@ -131,24 +181,23 @@ export class GCodeRenderer {
                 lastZ = z
 
                 if (e === 0) {
-                    this.addLine(points)
-
-                    const last = points[points.length-1]
-                    points = last ? [last] : []
+                    this.addLine(curve)
+                    curve = new CurvePath()
                 }
 
                 const newPoint = new Vector3(x, y, z)
                 this.calcMinMax(newPoint)
-                points.push(newPoint)       
+                curve.add(new LineCurve3(lastPoint, newPoint))
+                
+                lastPoint = newPoint
             }
         })
 
-        this.addLine(points)
+        this.addLine(curve)
        
         this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
 
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
-        points = []
         
         this.fitCamera()
     }
