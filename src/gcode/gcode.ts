@@ -2,50 +2,6 @@ import { Box3, BufferGeometry, Mesh, PerspectiveCamera, Color, Scene, Vector3, W
 import { OrbitControls } from '@three-ts/orbit-controls'
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
-const width = 512;
-const height = 512;
-
-const size = width * height;
-const dataRed = new Uint8Array( 3 * size );
-const dataGreen = new Uint8Array( 3 * size );
-const colorRed = new Color( 0xff0000 );
-const colorGreen = new Color( 0x00ff00 );
-
-let r = Math.floor( colorRed.r * 255 );
-let g = Math.floor( colorRed.g * 255 );
-let b = Math.floor( colorRed.b * 255 );
-
-for ( let i = 0; i < size; i ++ ) {
-
-	const stride = i * 3;
-
-	dataRed[ stride ] = r;
-	dataRed[ stride + 1 ] = g;
-	dataRed[ stride + 2 ] = b;
-
-}
-
-r = Math.floor( colorGreen.r * 255 );
-g = Math.floor( colorGreen.g * 255 );
-b = Math.floor( colorGreen.b * 255 );
-
-for ( let i = 0; i < size; i ++ ) {
-
-	const stride = i * 3;
-
-	dataGreen[ stride ] = r;
-	dataGreen[ stride + 1 ] = g;
-	dataGreen[ stride + 2 ] = b;
-
-}
-
-// used the buffer to create a DataTexture
-
-const textureRed = new DataTexture( dataRed, width, height, RGBFormat );
-const textureGreen = new DataTexture( dataGreen, width, height, RGBFormat );
-
-console.log(textureRed, textureGreen)
-
 export class GCodeRenderer {
 
     private running: boolean = false   
@@ -55,9 +11,9 @@ export class GCodeRenderer {
 
     private camera: PerspectiveCamera
 
+    private texture?: Texture
     private lineMaterial = new MeshBasicMaterial({ 
-        color: new Color("#0000ff"),
-     //   map: textureRed,
+      color: new Color("#0000ff"),
     })
 
     private lines: TubeGeometry[] = []
@@ -138,18 +94,42 @@ export class GCodeRenderer {
         }
     }
 
-    private addLine(points: CurvePath<Vector3>) {
-        if (points.getPoints().length <= 0) {
-            return
-        }
-
-        // TODO: why do I have to calculate the length * 2? With less the lines are as round.
-        const lineGeometry = new TubeGeometry(points, points.getPoints().length * 2, 0.4, 8, false);
+    private addLine(point1: Vector3, point2: Vector3) {
+        const lineGeometry = new TubeGeometry(new LineCurve3(point1, point2), 1, 0.4, 8, false);
         this.lines.push(lineGeometry)
     }
 
+    private getMaterial() {
+        // Just some testing material which colorizes each segment
+        // in two colors. (one red-green line is one segment)
+        const width = 2
+        const height = 1
+
+        const size = width * height
+        const data = new Uint8Array(3 * size)
+
+        for (let i = 0; i < size; i ++) {
+            const stride = i * 3
+
+            if (i % 2 === 0) {
+                data[stride] = 255
+                data[stride + 1] = 0
+                data[stride + 2] = 0
+            } else {
+                data[stride] = 0
+                data[stride + 1] = 255
+                data[stride + 2] = 0
+            }
+        }
+
+        this.texture = new DataTexture(data, width, height, RGBFormat)
+
+        return new MeshBasicMaterial({ 
+            map: this.texture,
+        })
+    }
+
     private async init() {
-        let curve: CurvePath<Vector3> = new CurvePath()
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
         this.calcMinMax(lastPoint)
 
@@ -180,30 +160,24 @@ export class GCodeRenderer {
                 lastY = y
                 lastZ = z
 
-                if (e === 0) {
-                    this.addLine(curve)
-                    curve = new CurvePath()
-                }
-
                 const newPoint = new Vector3(x, y, z)
+                this.addLine(lastPoint, newPoint)
                 this.calcMinMax(newPoint)
-                curve.add(new LineCurve3(lastPoint, newPoint))
                 
                 lastPoint = newPoint
             }
         })
 
-        this.addLine(curve)
-       
+        this.lineMaterial = this.getMaterial()
         this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
 
-        this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
+        this.scene.add (new Mesh(this.combinedLine, this.lineMaterial))
         
         this.fitCamera()
     }
 
     render() {
-        this.running = true
+        this.running = true 
         this.loop()
     }
 
@@ -216,9 +190,7 @@ export class GCodeRenderer {
             return
         }
         requestAnimationFrame(this.loop)
-
         this.update()
-
 	    this.renderer.render(this.scene, this.camera)
     }
 
@@ -231,6 +203,7 @@ export class GCodeRenderer {
         this.lines.forEach(l => l.dispose())
         this.cameraControl?.dispose()
         this.combinedLine?.dispose()
+        this.texture?.dispose()
     }
 
     resize(width: number, height: number) {
