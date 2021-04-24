@@ -13,38 +13,38 @@ var tsProject = ts.createProject('./tsconfig.json');
  * use ES5 and commonJS module
  */
 gulp.task('typescript', function () {
-  tsResult = tsProject
-    .src()
-    .pipe(tsProject());
-  return tsResult.js.pipe(gulp.dest('build/js'));
+    tsResult = tsProject
+        .src()
+        .pipe(tsProject());
+    return tsResult.js.pipe(gulp.dest('build/js'));
 });
 
 /**
  * Web server to test app
  */
 gulp.task('webserver', function () {
-  return connect.server({
-    livereload: true,
-    port: 3000,
-    root: ['.', 'dist']
-  });
+    return connect.server({
+        livereload: true,
+        port: 3000,
+        root: ['.', 'dist']
+    });
 });
 
 /**
  * Automatic Live Reload
  */
 gulp.task('livereload', function () {
-  return gulp.src(['dist/**/*'])
-    .pipe(watch(['dist/**/*']))
-    .pipe(connect.reload());
+    return gulp.src(['dist/**/*'])
+        .pipe(watch(['dist/**/*']))
+        .pipe(connect.reload());
 });
 
 /**
  * copy all html files and assets
  */
 gulp.task('copy', function () {
-  return gulp.src('public/**/*')
-    .pipe(gulp.dest('dist'), {end: true});
+    return gulp.src('public/**/*')
+        .pipe(gulp.dest('dist'), {end: true});
 });
 
 /**
@@ -52,55 +52,55 @@ gulp.task('copy', function () {
  * now is only for Javascript files
  */
 gulp.task('browserify', function () {
-  return browserify('./build/js/index.js')
-    .transform(
-      babelify,
-      {
-        only: [
-          "./node_modules/three/build/three.module.js",
-          "./node_modules/three/examples/jsm/*"
-        ],
-        global: true,
-        sourceType: "unambiguous",
-        presets: ["@babel/preset-env"],
-      }
-    )
-    .bundle()
-    .pipe(source('bundle.js'))
-    .pipe(gulp.dest('dist/js'));
+    return browserify('./build/js/index.js')
+        .transform(
+            babelify,
+            {
+                only: [
+                    "./node_modules/three/build/three.module.js",
+                    "./node_modules/three/examples/jsm/*"
+                ],
+                global: true,
+                sourceType: "unambiguous",
+                presets: ["@babel/preset-env"],
+            }
+        )
+        .bundle()
+        .pipe(source('bundle.js'))
+        .pipe(gulp.dest('dist/js'));
 });
 
 /**
  * Watch typescript and less
  */
 gulp.task('watch', function () {
-  gulp.watch('src/**/*.ts*', gulp.series(['typescript', 'browserify']));
-  gulp.watch('public/**/*', gulp.series(['copy']));
+    gulp.watch('src/**/*.ts*', gulp.series(['typescript', 'browserify']));
+    gulp.watch('public/**/*', gulp.series(['copy']));
 })
 
 /**
  * default task
  */
- gulp.task('default', 
-  gulp.series([
-    'typescript',
-    'browserify',
-    'copy',
-    gulp.parallel([
-      'webserver',
-      'livereload',
-      'watch'
+gulp.task('default',
+    gulp.series([
+        'typescript',
+        'browserify',
+        'copy',
+        gulp.parallel([
+            'webserver',
+            'livereload',
+            'watch'
+        ])
     ])
-  ])
 )
 
 /**
  * distribution task
  */
- gulp.task('dist', 
-  gulp.series([
-    'typescript',
-    'browserify',
-    'copy'
-  ])
+gulp.task('dist',
+    gulp.series([
+        'typescript',
+        'browserify',
+        'copy'
+    ])
 )

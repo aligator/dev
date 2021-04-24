@@ -8,16 +8,14 @@ import {
     Vector3,
     WebGLRenderer,
     Texture,
-    TubeGeometry,
     LineCurve3,
-    Float32BufferAttribute,
-    AnimationUtils,
     AmbientLight,
-    MeshPhongMaterial,
-    SpotLight, MeshBasicMaterial, MeshLambertMaterial
+    SpotLight,
+    MeshLambertMaterial
 } from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
-import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
+import {LineTubeGeometry} from "./LineTubeGeometry";
+import {LinePoint} from "./LinePoint";
 
 export class GCodeRenderer {
 
@@ -30,9 +28,9 @@ export class GCodeRenderer {
 
     private texture?: Texture
     private gopherBlue = new Color("#29BEB0")
-    private lineMaterial = new MeshLambertMaterial({ vertexColors: true, } )
+    private lineMaterial = new MeshLambertMaterial({ color: new Color("#ff0000"), vertexColors: false } )
 
-    private lines: TubeGeometry[] = []
+    private points: LinePoint[] = []
     private combinedLine?: BufferGeometry
 
     private readonly gCode: string
@@ -121,23 +119,15 @@ export class GCodeRenderer {
             radius = 0.03
         }
 
-        // Doesn't seem to be the best solution to use TubeGeometry.
-        // If I would create one with several lines in the curve it would be smoother,
-        // but I could not set individual radius and color
-        // However with each line being an individual TubeGeometry there are gaps between them.
-        // And it would not be an acurate representation of the gcode because it recalculates the segments.
-        // For now it's ok, but later I need a better solution.
-        // related: https://stackoverflow.com/questions/20738386/how-to-create-a-three-js-3d-line-series-with-width-and-thickness
-        // https://github.com/mrdoob/three.js/blob/master/examples/webgl_lines_fat.html
-        const lineGeometry = new TubeGeometry(curve, 1, radius, 8, false);
+        const point = new LinePoint(point2, radius);
 
-        const colors: number[] = []
+       /* const colors: number[] = []
         for (let i = 0, n = lineGeometry.attributes.position.count; i < n; ++ i) {
             colors.push(...this.gopherBlue.toArray());
         }
         lineGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
-
-        this.lines.push(lineGeometry)
+*/
+        this.points.push(point)
     }
 
     private async init() {
@@ -209,9 +199,12 @@ export class GCodeRenderer {
             }
         })
 
-        this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
+        // this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.points) || undefined
+
+        this.combinedLine = new LineTubeGeometry(this.points)
         this.combinedLine?.normalizeNormals();
         this.combinedLine?.computeVertexNormals();
+
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
 
         this.fitCamera()
@@ -252,7 +245,7 @@ export class GCodeRenderer {
 
     dispose() {
         this.running = false
-        this.lines.forEach(l => l.dispose())
+        //this.lines.forEach(l => l.dispose())
         this.cameraControl?.dispose()
         this.combinedLine?.dispose()
         this.texture?.dispose()
