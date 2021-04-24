@@ -1,4 +1,18 @@
-import { Box3, BufferGeometry, Mesh, PerspectiveCamera, Color, Scene, Vector3, WebGLRenderer, Texture, DataTexture, RGBFormat, MeshBasicMaterial, TubeGeometry, Curve, CurvePath, Vector3Tuple, LineCurve, LineCurve3 } from 'three'
+import {
+    Box3,
+    BufferGeometry,
+    Mesh,
+    PerspectiveCamera,
+    Color,
+    Scene,
+    Vector3,
+    WebGLRenderer,
+    Texture,
+    MeshBasicMaterial,
+    TubeGeometry,
+    LineCurve3,
+    Float32BufferAttribute, DoubleSide
+} from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
@@ -12,9 +26,7 @@ export class GCodeRenderer {
     private camera: PerspectiveCamera
 
     private texture?: Texture
-    private lineMaterial = new MeshBasicMaterial({ 
-      color: new Color("#0000ff"),
-    })
+    private lineMaterial = new MeshBasicMaterial( { side: DoubleSide,  vertexColors: true, wireframe: false } )
 
     private lines: TubeGeometry[] = []
     private combinedLine?: BufferGeometry
@@ -53,8 +65,6 @@ export class GCodeRenderer {
     }
 
     private fitCamera(offset?: number) {
-        offset = offset || 1.25
-    
         const boundingBox = new Box3(this.min, this.max);
         const center = new Vector3()
         boundingBox.getCenter(center)   
@@ -94,39 +104,18 @@ export class GCodeRenderer {
         }
     }
 
-    private addLine(point1: Vector3, point2: Vector3) {
-        const lineGeometry = new TubeGeometry(new LineCurve3(point1, point2), 1, 0.4, 8, false);
-        this.lines.push(lineGeometry)
-    }
+    private addLine(point1: Vector3, point2: Vector3, color: Color) {
+        const lineGeometry = new TubeGeometry(new LineCurve3(point1, point2), 1, 0.4, 5, false);
 
-    private getMaterial() {
-        // Just some testing material which colorizes each segment
-        // in two colors. (one red-green line is one segment)
-        const width = 2
-        const height = 1
+        const colors: number[] = []
+        for (let i = 0, n = lineGeometry.attributes.position.count; i < n; ++ i) {
 
-        const size = width * height
-        const data = new Uint8Array(3 * size)
+            colors.push(...color.toArray());
 
-        for (let i = 0; i < size; i ++) {
-            const stride = i * 3
-
-            if (i % 2 === 0) {
-                data[stride] = 255
-                data[stride + 1] = 0
-                data[stride + 2] = 0
-            } else {
-                data[stride] = 0
-                data[stride + 1] = 255
-                data[stride + 2] = 0
-            }
         }
+        lineGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
 
-        this.texture = new DataTexture(data, width, height, RGBFormat)
-
-        return new MeshBasicMaterial({ 
-            map: this.texture,
-        })
+        this.lines.push(lineGeometry)
     }
 
     private async init() {
@@ -161,17 +150,15 @@ export class GCodeRenderer {
                 lastZ = z
 
                 const newPoint = new Vector3(x, y, z)
-                this.addLine(lastPoint, newPoint)
+                this.addLine(lastPoint, newPoint, this.lines.length % 2 === 0 ? new Color("#ff0000") : new Color("#00ff00"))
                 this.calcMinMax(newPoint)
                 
                 lastPoint = newPoint
             }
         })
 
-        this.lineMaterial = this.getMaterial()
         this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
-
-        this.scene.add (new Mesh(this.combinedLine, this.lineMaterial))
+        this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
         
         this.fitCamera()
     }
