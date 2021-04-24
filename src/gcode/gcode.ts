@@ -121,6 +121,14 @@ export class GCodeRenderer {
             radius = 0.03
         }
 
+        // Doesn't seem to be the best solution to use TubeGeometry.
+        // If I would create one with several lines in the curve it would be smoother,
+        // but I could not set individual radius and color
+        // However with each line being an individual TubeGeometry there are gaps between them.
+        // And it would not be an acurate representation of the gcode because it recalculates the segments.
+        // For now it's ok, but later I need a better solution.
+        // related: https://stackoverflow.com/questions/20738386/how-to-create-a-three-js-3d-line-series-with-width-and-thickness
+        // https://github.com/mrdoob/three.js/blob/master/examples/webgl_lines_fat.html
         const lineGeometry = new TubeGeometry(curve, 1, radius, 8, false);
 
         const colors: number[] = []
