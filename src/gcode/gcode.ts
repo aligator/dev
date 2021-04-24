@@ -8,25 +8,29 @@ import {
     Vector3,
     WebGLRenderer,
     Texture,
-    MeshBasicMaterial,
     TubeGeometry,
     LineCurve3,
-    Float32BufferAttribute, DoubleSide
+    Float32BufferAttribute,
+    AnimationUtils,
+    AmbientLight,
+    MeshPhongMaterial,
+    SpotLight, MeshBasicMaterial
 } from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 
 export class GCodeRenderer {
 
-    private running: boolean = false   
+    private running: boolean = false
     private readonly scene: Scene
     private readonly renderer: WebGLRenderer
-    private cameraControl?: OrbitControls 
+    private cameraControl?: OrbitControls
 
     private camera: PerspectiveCamera
 
     private texture?: Texture
-    private lineMaterial = new MeshBasicMaterial( { side: DoubleSide,  vertexColors: true, wireframe: false } )
+    private gopherBlue = new Color("#29BEB0")
+    private lineMaterial = new MeshBasicMaterial({ vertexColors: true, } )
 
     private lines: TubeGeometry[] = []
     private combinedLine?: BufferGeometry
@@ -45,7 +49,7 @@ export class GCodeRenderer {
         this.camera = this.newCamera(width, height)
 
         this.gCode = gCode
-        
+
         this.init()
     }
 
@@ -67,12 +71,11 @@ export class GCodeRenderer {
     private fitCamera(offset?: number) {
         const boundingBox = new Box3(this.min, this.max);
         const center = new Vector3()
-        boundingBox.getCenter(center)   
+        boundingBox.getCenter(center)
         this.camera.lookAt(center)
         if (this.cameraControl) {
             this.cameraControl.target = center
         }
-        
     }
 
     private calcMinMax(newPoint: Vector3) {
@@ -104,14 +107,25 @@ export class GCodeRenderer {
         }
     }
 
-    private addLine(point1: Vector3, point2: Vector3, color: Color) {
-        const lineGeometry = new TubeGeometry(new LineCurve3(point1, point2), 1, 0.4, 5, false);
+    private addLine(point1: Vector3, lastExtrusion: number, point2: Vector3, extrusion: number) {
+        //const color = this.lines.length % 2 === 0 ? new Color("#ff0000") : new Color("#00ff00")
+        if (point1.equals(point2)) {
+            // ToDo: lines of zero length - check why that happens
+            return
+        }
+        const curve = new LineCurve3(point1, point2)
+        const length = curve.getLength()
+
+        let radius = (extrusion - lastExtrusion) / length * 10
+        if (radius === 0) {
+            radius = 0.03
+        }
+
+        const lineGeometry = new TubeGeometry(curve, 1, radius, 5, false);
 
         const colors: number[] = []
         for (let i = 0, n = lineGeometry.attributes.position.count; i < n; ++ i) {
-
-            colors.push(...color.toArray());
-
+            colors.push(...this.gopherBlue.toArray());
         }
         lineGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
 
@@ -125,13 +139,37 @@ export class GCodeRenderer {
         function parseValue(value?: string): number | undefined {
             if (!value) {
                 return undefined
-            }  
+            }
             return Number.parseFloat(value.substring(1))
+        }
+
+        const relative: {
+            x: boolean,
+            y: boolean,
+            z: boolean,
+            e: boolean
+        } = {
+            x: false, y: false, z: false, e: false
         }
 
         let lastX = 0
         let lastY = 0
         let lastZ = 0
+        let lastE = 0
+
+        function getValue(cmd: string[], name: string, last: number, relative: boolean): number {
+            let val = parseValue(cmd.find((v) => v[0] === name))
+
+            if (val !== undefined) {
+                if (relative) {
+                    val += last
+                }
+            } else {
+                val = last
+            }
+
+            return val
+        }
 
         this.gCode.split("\n").forEach((line)=> {
             if (line[0] === ";") {
@@ -140,36 +178,43 @@ export class GCodeRenderer {
 
             const cmd = line.split(" ")
             if (cmd[0] === "G0" || cmd[0] === "G1") {
-                const x = parseValue(cmd.find((v) => v[0] === "X")) || lastX
-                const y = parseValue(cmd.find((v) => v[0] === "Y")) || lastY
-                const z = parseValue(cmd.find((v) => v[0] === "Z")) || lastZ
-                const e = parseValue(cmd.find((v) => v[0] === "E")) || 0
+                const x = getValue(cmd,"X", lastX, relative.x)
+                const y = getValue(cmd,"Y", lastY, relative.y)
+                const z = getValue(cmd,"Z", lastZ, relative.z)
+                const e = getValue(cmd,"E", lastE, relative.e)
+
+                const newPoint = new Vector3(x, y, z)
+                const lastPoint = new Vector3(lastX, lastY, lastZ)
+                this.addLine(lastPoint, lastE, newPoint, e)
+                this.calcMinMax(newPoint)
 
                 lastX = x
                 lastY = y
                 lastZ = z
-
-                const newPoint = new Vector3(x, y, z)
-                this.addLine(lastPoint, newPoint, this.lines.length % 2 === 0 ? new Color("#ff0000") : new Color("#00ff00"))
-                this.calcMinMax(newPoint)
-                
-                lastPoint = newPoint
+                lastE = e
+            } else if (cmd[0] === "G92") {
+                // set state
+                lastX = parseValue(cmd.find((v) => v[0] === "X")) || lastX
+                lastY = parseValue(cmd.find((v) => v[0] === "Y")) || lastY
+                lastZ = parseValue(cmd.find((v) => v[0] === "Z")) || lastZ
+                lastE = parseValue(cmd.find((v) => v[0] === "E")) || lastE
             }
         })
 
         this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.lines) || undefined
+        this.combinedLine?.normalizeNormals();
+        this.combinedLine?.computeVertexNormals();
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
-        
         this.fitCamera()
     }
 
     render() {
-        this.running = true 
+        this.running = true
         this.loop()
     }
 
     update() {
-        
+
     }
 
     private loop = () => {
