@@ -14,7 +14,7 @@ import {
     AnimationUtils,
     AmbientLight,
     MeshPhongMaterial,
-    SpotLight, MeshBasicMaterial
+    SpotLight, MeshBasicMaterial, MeshLambertMaterial
 } from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
@@ -30,7 +30,7 @@ export class GCodeRenderer {
 
     private texture?: Texture
     private gopherBlue = new Color("#29BEB0")
-    private lineMaterial = new MeshBasicMaterial({ vertexColors: true, } )
+    private lineMaterial = new MeshLambertMaterial({ vertexColors: true, } )
 
     private lines: TubeGeometry[] = []
     private combinedLine?: BufferGeometry
@@ -121,7 +121,7 @@ export class GCodeRenderer {
             radius = 0.03
         }
 
-        const lineGeometry = new TubeGeometry(curve, 1, radius, 5, false);
+        const lineGeometry = new TubeGeometry(curve, 1, radius, 8, false);
 
         const colors: number[] = []
         for (let i = 0, n = lineGeometry.attributes.position.count; i < n; ++ i) {
@@ -205,7 +205,19 @@ export class GCodeRenderer {
         this.combinedLine?.normalizeNormals();
         this.combinedLine?.computeVertexNormals();
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
+
         this.fitCamera()
+        const ambientLight = new AmbientLight(0xffffff, 0.7);
+        this.scene.add(ambientLight);
+
+        const spotLight = new SpotLight(0xffffff);
+        spotLight.position.set(200, 400, 300);
+        spotLight.lookAt(new Vector3(0, 0, 0))
+        const spotLight2 = new SpotLight(0xffffff);
+        spotLight2.position.set(-200, -400, -300);
+        spotLight2.lookAt(new Vector3(0, 0, 0))
+        this.scene.add(spotLight);
+        this.scene.add(spotLight2);
     }
 
     render() {

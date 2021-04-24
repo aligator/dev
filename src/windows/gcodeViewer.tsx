@@ -20,7 +20,7 @@ export default class GCodeViewer extends Window {
         this.setWindowName(<>GCode Viewer</>)
 
         this.setWindowContent(
-            <div id="gcode-viewer-container">Loading...</div>
+            <div className="gcode-viewer-message">Loading...</div>
         )
 
         const getGcode = async () => {
@@ -29,8 +29,8 @@ export default class GCodeViewer extends Window {
                 const res = await fetch("gopher.stl.gcode")
                 if (!res.body) {
                     this.setWindowContent(
-                        <div id="gcode-viewer-container">No GCode</div>
-                    ) 
+                        <div className="gcode-viewer-message">No GCode</div>
+                    )
                     return
                 }
         
