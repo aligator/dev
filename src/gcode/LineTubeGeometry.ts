@@ -1,8 +1,18 @@
-import {BufferGeometry, Float32BufferAttribute, MathUtils, Matrix4, Vector2, Vector3} from 'three';
+import {
+    BufferGeometry,
+    Curve,
+    Float32BufferAttribute,
+    LineCurve3,
+    MathUtils,
+    Matrix4,
+    Path,
+    Vector2,
+    Vector3
+} from 'three';
 import {LinePoint} from "./LinePoint";
 
 export class LineTubeGeometry extends BufferGeometry {
-    private readonly points: LinePoint[]
+    private points: LinePoint[]
     private readonly radialSegments: number
 
     // buffer
@@ -11,10 +21,10 @@ export class LineTubeGeometry extends BufferGeometry {
     private uvs: number[] = [];
     private indices: number[] = [];
 
-    constructor(segments: LinePoint[], radialSegments = 8) {
+    constructor(points: LinePoint[], radialSegments = 8) {
         super()
         this.type = 'SegmentedTubeGeometry'
-        this.points = segments
+        this.points = points
         this.radialSegments = radialSegments
 
         // create buffer data
@@ -30,34 +40,41 @@ export class LineTubeGeometry extends BufferGeometry {
     }
 
     generateBufferData() {
-
-        for ( let i = 0; i < this.points.length; i ++ ) {
-            this.generateSegment( i );
+        const isEven = this.points.length % 2 === 0
+        const pairs = Math.floor(this.points.length / 2)
+        for ( let i = 0; i < pairs; i++ ) {
+            this.generateSegment(i*2);
         }
-        this.generateSegment(this.points.length-1);
 
-        // uvs are generated in a separate function.
-        // this makes it easy compute correct values for closed geometries
+        // Add the missing segment for odd count of points
+        if (!isEven) {
+            this.generateSegment(this.points.length-2, 2);
+        }
+
 
         this.generateUVs();
 
         // finally create faces
-
         this.generateIndices();
 
     }
 
-    generateSegment( i: number ) {
-
+    generateSegment(i: number, insertOnly?: number) {
         // we use getPointAt to sample evenly distributed points from the given path
+        let point = this.points[i]
+        let point2 = this.points[i+1]
 
-        const point = this.points[i]
+        const c = new LineCurve3(point.point, point2.point)
+        const frame = c.computeFrenetFrames(1, false)
+        const N = frame.normals[0]
+        const B = frame.binormals[0]
 
-        const N = new Vector3(0, 1, 0)
-        const B = new Vector3(1, 0, 1)
+        const vertices1: number[] = []
+        const vertices2: number[] = []
+        const normals1: number[] = []
+        const normals2: number[] = []
 
         // generate normals and vertices for the current segment
-
         for ( let j = 0; j <= this.radialSegments; j ++ ) {
 
             const v = j / this.radialSegments * Math.PI * 2;
@@ -72,23 +89,34 @@ export class LineTubeGeometry extends BufferGeometry {
             normal.z = ( cos * N.z + sin * B.z );
             normal.normalize();
 
-            this.normals.push( normal.x, normal.y, normal.z );
+            normals1.push( normal.x, normal.y, normal.z );
+            normals2.push( normal.x, normal.y, normal.z );
 
             // vertex
-            const vertex = new Vector3()
-            vertex.x = point.point.x + point.radius * normal.x;
-            vertex.y = point.point.y + point.radius * normal.y;
-            vertex.z = point.point.z + point.radius * normal.z;
+            if (insertOnly === 1 || insertOnly === undefined) {
+                vertices1.push(
+                    point.point.x + point.radius * normal.x,
+                    point.point.y + point.radius * normal.y,
+                    point.point.z + point.radius * normal.z
+                );
+            }
 
-            this.vertices.push( vertex.x, vertex.y, vertex.z );
-
+            if (insertOnly === 2 || insertOnly === undefined) {
+                vertices2.push(
+                    point2.point.x + point2.radius * normal.x,
+                    point2.point.y + point2.radius * normal.y,
+                    point2.point.z + point2.radius * normal.z
+                )
+            }
         }
 
+        this.normals.push(...normals1, ...normals2)
+        this.vertices.push(...vertices1, ...vertices2)
     }
 
     generateIndices() {
 
-        for ( let j = 1; j <= this.points.length; j ++ ) {
+        for ( let j = 1; j < this.points.length; j ++ ) {
 
             for ( let i = 1; i <= this.radialSegments; i ++ ) {
 
@@ -110,12 +138,12 @@ export class LineTubeGeometry extends BufferGeometry {
 
     generateUVs() {
 
-        for ( let i = 0; i <= this.points.length; i ++ ) {
+        for ( let i = 0; i < this.points.length; i ++ ) {
 
             for ( let j = 0; j <= this.radialSegments; j ++ ) {
 
                 const uv = new Vector2()
-                uv.x = i / this.points.length;
+                uv.x = i / this.points.length-1;
                 uv.y = j / this.radialSegments;
 
                 this.uvs.push( uv.x, uv.y );
