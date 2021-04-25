@@ -11,7 +11,7 @@ import {
     LineCurve3,
     AmbientLight,
     SpotLight,
-    MeshLambertMaterial
+    MeshPhongMaterial
 } from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
 import {LineTubeGeometry} from "./LineTubeGeometry";
@@ -28,7 +28,7 @@ export class GCodeRenderer {
 
     private texture?: Texture
     private gopherBlue = new Color("#29BEB0")
-    private lineMaterial = new MeshLambertMaterial({ color: new Color("#ff0000"), vertexColors: false } )
+    private lineMaterial = new MeshPhongMaterial({ color: this.gopherBlue, vertexColors: false } )
 
     private points: LinePoint[] = []
     private combinedLine?: BufferGeometry
@@ -202,19 +202,16 @@ export class GCodeRenderer {
         // this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.points) || undefined
 
         this.combinedLine = new LineTubeGeometry(this.points)
-        this.combinedLine?.normalizeNormals();
-        this.combinedLine?.computeVertexNormals();
-
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
 
         this.fitCamera()
-        const ambientLight = new AmbientLight(0xffffff, 0.7);
+        const ambientLight = new AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
 
-        const spotLight = new SpotLight(0xffffff);
+        const spotLight = new SpotLight(0xffffff, 0.9);
         spotLight.position.set(200, 400, 300);
         spotLight.lookAt(new Vector3(0, 0, 0))
-        const spotLight2 = new SpotLight(0xffffff);
+        const spotLight2 = new SpotLight(0xffffff, 0.9);
         spotLight2.position.set(-200, -400, -300);
         spotLight2.lookAt(new Vector3(0, 0, 0))
         this.scene.add(spotLight);
