@@ -130,12 +130,11 @@ export class LineTubeGeometry extends BufferGeometry {
             }
 
             if (insertOnly === 2 || insertOnly === undefined) {
-                segmentsPoint2Connector.push(createPointData(i+1, j, normal, point.point, point.radius))
                 segmentsPoint2.push(createPointData(i+1, j, normal, point2.point, point2.radius))
             }
         }
 
-        this.segments.push(...segmentsPoint1Connector, ...segmentsPoint1, ...segmentsPoint2Connector, ...segmentsPoint2)
+        this.segments.push(...segmentsPoint1Connector, ...segmentsPoint1, ...segmentsPoint2)
     }
 
     generateIndices() {
