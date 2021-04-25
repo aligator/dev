@@ -80,10 +80,10 @@ export class LineTubeGeometry extends BufferGeometry {
     }
 
     generateSegment(i: number, insertOnly?: number) {
-        const lastRadius = this.points[i-1]?.radius || 0
-
         let point = this.points[i]
         let point2 = this.points[i+1]
+
+        const lastRadius = this.points[i-1]?.radius || 0
 
         const c = new LineCurve3(point.point, point2.point)
         const frame = c.computeFrenetFrames(1, false)
@@ -135,7 +135,7 @@ export class LineTubeGeometry extends BufferGeometry {
             }
         }
 
-        this.segments.push(...segmentsPoint1Connector, ...segmentsPoint1, ...segmentsPoint2)
+        this.segments.push(...segmentsPoint1Connector, ...segmentsPoint1, ...segmentsPoint2Connector, ...segmentsPoint2)
     }
 
     generateIndices() {
@@ -148,8 +148,8 @@ export class LineTubeGeometry extends BufferGeometry {
             const d = i;
 
             this.segments[i].indices = [
-                a, b, c,
-                d, a, c
+                c, b, a,
+                c, a, d
 
                 // 0 3 1
                 // 3 0 2
