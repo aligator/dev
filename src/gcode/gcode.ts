@@ -115,9 +115,6 @@ export class GCodeRenderer {
         const length = curve.getLength()
 
         let radius = (extrusion - lastExtrusion) / length * 10
-        if (radius === 0) {
-            radius = 0.03
-        }
 
         const point = new LinePoint(point2, radius);
 
@@ -183,6 +180,7 @@ export class GCodeRenderer {
 
                 const newPoint = new Vector3(x, y, z)
                 const lastPoint = new Vector3(lastX, lastY, lastZ)
+
                 this.addLine(lastPoint, lastE, newPoint, e)
                 this.calcMinMax(newPoint)
 
@@ -198,6 +196,11 @@ export class GCodeRenderer {
                 lastE = parseValue(cmd.find((v) => v[0] === "E")) || lastE
             }
         })
+/*
+        this.points = [
+            new LinePoint(new Vector3(0, 0, 0), 10),
+            new LinePoint(new Vector3(100, 100, 100), 10)
+        ]*/
 
         // this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.points) || undefined
 
@@ -208,13 +211,13 @@ export class GCodeRenderer {
         const ambientLight = new AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
 
-        const spotLight = new SpotLight(0xffffff, 0.9);
-        spotLight.position.set(200, 400, 300);
-        spotLight.lookAt(new Vector3(0, 0, 0))
+     //   const spotLight = new SpotLight(0xffffff, 0.9);
+     //    spotLight.position.set(200, 400, 300);
+     //    spotLight.lookAt(new Vector3(0, 0, 0))
         const spotLight2 = new SpotLight(0xffffff, 0.9);
         spotLight2.position.set(-200, -400, -300);
         spotLight2.lookAt(new Vector3(0, 0, 0))
-        this.scene.add(spotLight);
+        // this.scene.add(spotLight);
         this.scene.add(spotLight2);
     }
 
