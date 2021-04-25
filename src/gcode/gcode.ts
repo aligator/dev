@@ -11,7 +11,7 @@ import {
     LineCurve3,
     AmbientLight,
     SpotLight,
-    MeshPhongMaterial
+    MeshPhongMaterial, Line
 } from 'three'
 import { OrbitControls } from '@three-ts/orbit-controls'
 import {LineTubeGeometry} from "./LineTubeGeometry";
@@ -104,7 +104,7 @@ export class GCodeRenderer {
             this.min.z = newPoint.z
         }
     }
-
+/*
     private addLine(point1: Vector3, lastExtrusion: number, point2: Vector3, extrusion: number) {
         //const color = this.lines.length % 2 === 0 ? new Color("#ff0000") : new Color("#00ff00")
         if (point1.equals(point2)) {
@@ -118,17 +118,19 @@ export class GCodeRenderer {
 
         const point = new LinePoint(point2, radius);
 
-       /* const colors: number[] = []
+       /!* const colors: number[] = []
         for (let i = 0, n = lineGeometry.attributes.position.count; i < n; ++ i) {
             colors.push(...this.gopherBlue.toArray());
         }
         lineGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
-*/
+*!/
         this.points.push(point)
-    }
+    }*/
 
     private async init() {
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
+        this.points.push(new LinePoint(lastPoint, 0))
+
         this.calcMinMax(lastPoint)
 
         function parseValue(value?: string): number | undefined {
@@ -151,6 +153,7 @@ export class GCodeRenderer {
         let lastY = 0
         let lastZ = 0
         let lastE = 0
+        let nextRadius = 0
 
         function getValue(cmd: string[], name: string, last: number, relative: boolean): number {
             let val = parseValue(cmd.find((v) => v[0] === name))
@@ -181,8 +184,12 @@ export class GCodeRenderer {
                 const newPoint = new Vector3(x, y, z)
                 const lastPoint = new Vector3(lastX, lastY, lastZ)
 
-                this.addLine(lastPoint, lastE, newPoint, e)
+                this.points.push(new LinePoint(newPoint, nextRadius))
                 this.calcMinMax(newPoint)
+
+                const curve = new LineCurve3(lastPoint, newPoint)
+                const length = curve.getLength()
+                nextRadius = (e - lastE) / length * 10
 
                 lastX = x
                 lastY = y
