@@ -34,14 +34,12 @@ export class LineTubeGeometry extends BufferGeometry {
 
     constructor(points: LinePoint[], radialSegments = 8) {
         super()
-        this.type = 'SegmentedTubeGeometry'
+        this.type = 'LineTubeGeometry'
         this.points = points
         this.radialSegments = radialSegments
 
         // create buffer data
         this.generateBufferData();
-
-      //  console.log(this.indices)
 
         // build geometry
         this.setIndex(this.indices);
@@ -74,9 +72,6 @@ export class LineTubeGeometry extends BufferGeometry {
             this.uvs.push(...s.uvs)
             this.indices.push(...s.indices)
         })
-        /*console.log(this.segments)
-        console.log(this.vertices)
-        console.log(this.indices)*/
     }
 
     generateSegment(i: number, insertOnly?: number) {
@@ -108,7 +103,7 @@ export class LineTubeGeometry extends BufferGeometry {
         const segmentsPoint1Connector: PointData[] = []
         const segmentsPoint1: PointData[] = []
         const segmentsPoint2: PointData[] = []
-        const segmentsPoint2Connector: PointData[] = []
+
         // generate normals and vertices for the current segment
         for ( let j = 0; j <= this.radialSegments; j ++ ) {
             const v = j / this.radialSegments * Math.PI * 2;
@@ -138,9 +133,7 @@ export class LineTubeGeometry extends BufferGeometry {
     }
 
     generateIndices() {
-        //console.log(this.segments.length)
        for (let i=(this.radialSegments+2); i<this.segments.length; i++) {
-       // const i = this.radialSegments+1
             const a = i-1;
             const b = i - this.radialSegments - 2;
             const c = i - this.radialSegments-1;
@@ -149,52 +142,11 @@ export class LineTubeGeometry extends BufferGeometry {
             this.segments[i].indices = [
                 c, b, a,
                 c, a, d
-
-                // 0 3 1
-                // 3 0 2
             ]
         }
-
-        // für jeden Punkt zwischen Anfang und ende
-        // füge jede Fläche als 2 dreiecke ein
-
-   /*     for ( let j = 1; j < this.points.length; j ++ ) {
-            console.log(j)
-            for ( let i = 1; i <= this.radialSegments; i ++ ) {
-                // 1, 2, ,3 ,4 ,5, 6, 7, 8
-                console.log("a", i)
-
-                // letzter Punkt segment i-1
-                const a = ( this.radialSegments + 1 ) * ( j - 1 ) + ( i - 1 );
-
-                // dieser Punkt segment i-1
-                const b = ( this.radialSegments + 1 ) * j + ( i - 1 );
-
-                // dieser Punkt segment i
-                const c = ( this.radialSegments + 1 ) * j + i;
-
-                // letzter Punkt segment i
-                const d = ( this.radialSegments + 1 ) * ( j - 1 ) + i;
-
-                // faces
-
-                this.indices.push( a, b, d );
-                this.indices.push( b, c, d );
-
-            }
-
-        }
-*/
-        /*console.log(this.points.length)
-        console.log(this.radialSegments)
-        console.log(this.indices.length  / 2)
-    */
-
-
     }
 
     generateUVs() {
-       // console.log(this.segments.length)
         for (let i=0; i<this.segments.length; i++) {
 
             this.uvs.push(
@@ -202,22 +154,6 @@ export class LineTubeGeometry extends BufferGeometry {
                 this.segments[i].radialNr / this.radialSegments
             )
         }
-
-        /*
-        for ( let i = 0; i < this.points.length; i ++ ) {
-
-            for ( let j = 0; j <= this.radialSegments; j ++ ) {
-
-                const uv = new Vector2()
-                uv.x = i / this.points.length-1;
-                uv.y = j / this.radialSegments;
-
-                this.uvs.push( uv.x, uv.y );
-
-            }
-
-        }
-*/
     }
 
     toJSON() {

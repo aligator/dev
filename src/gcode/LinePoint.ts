@@ -1,6 +1,6 @@
 import {Vector3} from "three";
 
-class LinePoint {
+export class LinePoint {
     public readonly point: Vector3
     public readonly radius: number
 
@@ -9,5 +9,3 @@ class LinePoint {
         this.radius = radius
     }
 }
-
-export {LinePoint};

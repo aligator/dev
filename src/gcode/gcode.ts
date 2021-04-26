@@ -78,10 +78,10 @@ export class GCodeRenderer {
 
     private calcMinMax(newPoint: Vector3) {
         if (this.min === undefined) {
-            this.min = newPoint
+            this.min = newPoint.clone()
         }
         if (this.max === undefined) {
-            this.max = newPoint
+            this.max = newPoint.clone()
         }
 
         if (newPoint.x >  this.max.x) {
@@ -129,8 +129,8 @@ export class GCodeRenderer {
 
     private async init() {
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
-        this.points.push(new LinePoint(lastPoint, 0))
-
+        const line = new LinePoint(lastPoint, 0.1)
+        this.points.push(line)
         this.calcMinMax(lastPoint)
 
         function parseValue(value?: string): number | undefined {
@@ -149,11 +149,7 @@ export class GCodeRenderer {
             x: false, y: false, z: false, e: false
         }
 
-        let lastX = 0
-        let lastY = 0
-        let lastZ = 0
         let lastE = 0
-        let nextRadius = 0
 
         function getValue(cmd: string[], name: string, last: number, relative: boolean): number {
             let val = parseValue(cmd.find((v) => v[0] === name))
@@ -176,30 +172,41 @@ export class GCodeRenderer {
 
             const cmd = line.split(" ")
             if (cmd[0] === "G0" || cmd[0] === "G1") {
-                const x = getValue(cmd,"X", lastX, relative.x)
-                const y = getValue(cmd,"Y", lastY, relative.y)
-                const z = getValue(cmd,"Z", lastZ, relative.z)
+                const x = getValue(cmd,"X", lastPoint.x, relative.x)
+                const y = getValue(cmd,"Y", lastPoint.y, relative.y)
+                const z = getValue(cmd,"Z", lastPoint.z, relative.z)
                 const e = getValue(cmd,"E", lastE, relative.e)
 
                 const newPoint = new Vector3(x, y, z)
-                const lastPoint = new Vector3(lastX, lastY, lastZ)
-
-                this.points.push(new LinePoint(newPoint, nextRadius))
-                this.calcMinMax(newPoint)
 
                 const curve = new LineCurve3(lastPoint, newPoint)
                 const length = curve.getLength()
-                nextRadius = (e - lastE) / length * 10
 
-                lastX = x
-                lastY = y
-                lastZ = z
+                if (length !== 0) {
+                    // TODO: why are there some with length 0?
+                    const radius = (e - lastE) / length * 10
+                    this.points.push(new LinePoint(newPoint.clone(), radius))
+                    this.calcMinMax(newPoint)
+                    //
+                    //
+                    // if (radius == 0) {
+                    //     nextRadius = 0
+                    // } else {
+                    //     nextRadius = radius
+                    // }
+                }
+
+
+
+                lastPoint = new Vector3(x, y, z)
                 lastE = e
             } else if (cmd[0] === "G92") {
                 // set state
-                lastX = parseValue(cmd.find((v) => v[0] === "X")) || lastX
-                lastY = parseValue(cmd.find((v) => v[0] === "Y")) || lastY
-                lastZ = parseValue(cmd.find((v) => v[0] === "Z")) || lastZ
+                lastPoint = new Vector3(
+                    parseValue(cmd.find((v) => v[0] === "X")) || lastPoint.x,
+                    parseValue(cmd.find((v) => v[0] === "Y")) || lastPoint.y,
+                    parseValue(cmd.find((v) => v[0] === "Z")) || lastPoint.z
+                )
                 lastE = parseValue(cmd.find((v) => v[0] === "E")) || lastE
             }
         })
@@ -209,8 +216,6 @@ export class GCodeRenderer {
             new LinePoint(new Vector3(100, 100, 100), 10)
         ]*/
 
-        // this.combinedLine = BufferGeometryUtils.mergeBufferGeometries(this.points) || undefined
-
         this.combinedLine = new LineTubeGeometry(this.points)
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
 
@@ -218,13 +223,13 @@ export class GCodeRenderer {
         const ambientLight = new AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
 
-     //   const spotLight = new SpotLight(0xffffff, 0.9);
-     //    spotLight.position.set(200, 400, 300);
-     //    spotLight.lookAt(new Vector3(0, 0, 0))
+       const spotLight = new SpotLight(0xffffff, 0.9);
+        spotLight.position.set(200, 400, 300);
+        spotLight.lookAt(new Vector3(0, 0, 0))
         const spotLight2 = new SpotLight(0xffffff, 0.9);
         spotLight2.position.set(-200, -400, -300);
         spotLight2.lookAt(new Vector3(0, 0, 0))
-        // this.scene.add(spotLight);
+        this.scene.add(spotLight);
         this.scene.add(spotLight2);
     }
 
