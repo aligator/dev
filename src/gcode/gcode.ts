@@ -11,11 +11,11 @@ import {
     LineCurve3,
     AmbientLight,
     SpotLight,
-    MeshPhongMaterial, Line
+    MeshPhongMaterial
 } from 'three'
-import { OrbitControls } from '@three-ts/orbit-controls'
-import {LineTubeGeometry} from "./LineTubeGeometry";
-import {LinePoint} from "./LinePoint";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { LineTubeGeometry } from "./LineTubeGeometry";
+import { LinePoint } from "./LinePoint";
 
 export class GCodeRenderer {
 
@@ -210,11 +210,13 @@ export class GCodeRenderer {
                 lastE = parseValue(cmd.find((v) => v[0] === "E")) || lastE
             }
         })
-/*
+
         this.points = [
             new LinePoint(new Vector3(0, 0, 0), 10),
-            new LinePoint(new Vector3(100, 100, 100), 10)
-        ]*/
+            new LinePoint(new Vector3(100, 100, 100), 10),
+            new LinePoint(new Vector3(100, 0, 0), 10),
+            new LinePoint(new Vector3(100, 100, 0), 10)
+        ]
 
         this.combinedLine = new LineTubeGeometry(this.points)
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
