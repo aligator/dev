@@ -129,8 +129,6 @@ export class GCodeRenderer {
 
     private async init() {
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
-        const line = new LinePoint(lastPoint, 0.1)
-        this.points.push(line)
         this.calcMinMax(lastPoint)
 
         function parseValue(value?: string): number | undefined {
@@ -182,21 +180,21 @@ export class GCodeRenderer {
                 const curve = new LineCurve3(lastPoint, newPoint)
                 const length = curve.getLength()
 
+                // TODO: why are there some with length 0 is it an error in GoSlice??
                 if (length !== 0) {
-                    // TODO: why are there some with length 0?
-                    const radius = (e - lastE) / length * 10
-                    this.points.push(new LinePoint(newPoint.clone(), radius))
-                    this.calcMinMax(newPoint)
-                    //
-                    //
-                    // if (radius == 0) {
-                    //     nextRadius = 0
-                    // } else {
-                    //     nextRadius = radius
-                    // }
+                    let radius = (e - lastE) / length * 10
+
+                    if (radius == 0) {
+                        radius = 0.01
+                    }
+                    // Insert the last point with the current radius.
+                    // As the gcode contains the extrusion for the urrent line, 
+                    // but the LinePoint contains the radius for the 'next' line
+                    // we need to combine the last point with the current radius.
+                    this.points.push(new LinePoint(lastPoint.clone(), radius))
+                    lastPoint = newPoint
+                    this.calcMinMax(newPoint)                         
                 }
-
-
 
                 lastPoint = new Vector3(x, y, z)
                 lastE = e
@@ -211,12 +209,15 @@ export class GCodeRenderer {
             }
         })
 
-        this.points = [
-            new LinePoint(new Vector3(0, 0, 0), 10),
-            new LinePoint(new Vector3(100, 100, 100), 10),
-            new LinePoint(new Vector3(100, 0, 0), 10),
-            new LinePoint(new Vector3(100, 100, 0), 10)
-        ]
+        // this.points = this.points.slice(0, 30)
+
+        // this.points = [
+        //     new LinePoint(new Vector3(0, 0, 0), 10),
+        //     new LinePoint(new Vector3(100, 100, 100), 5),
+        //     new LinePoint(new Vector3(100, 0, 0), 10),
+        //     new LinePoint(new Vector3(100, 100, 0), 10),
+        //     new LinePoint(new Vector3(50, 20, 50), 10)
+        // ]
 
         this.combinedLine = new LineTubeGeometry(this.points)
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
