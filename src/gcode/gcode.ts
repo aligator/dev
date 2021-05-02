@@ -32,7 +32,7 @@ export class GCodeRenderer {
     private lineMaterial = new MeshPhongMaterial({  vertexColors: true } )
 
     private points: LinePoint[] = []
-    private combinedLine?: BufferGeometry
+    private combinedLine?: LineTubeGeometry
 
     private readonly gCode: string
 
@@ -44,6 +44,9 @@ export class GCodeRenderer {
     private minSpeed: number | undefined = undefined
     private maxSpeed = 0
 
+    private layerIndex: {start: number, end: number}[] = []
+
+    public travelWidth: number = 0.01
     public colorizer: SegmentColorizer = new SimpleColorizer()
 
     constructor(gCode: string, width: number, height: number) {
@@ -80,6 +83,11 @@ export class GCodeRenderer {
         this.cameraControl.enableZoom = true
         this.cameraControl.minDistance = -Infinity
         this.cameraControl.maxDistance = Infinity
+
+        this.cameraControl?.addEventListener("change", () => {
+            requestAnimationFrame(() => this.draw())    
+        })
+
         return camera
     }
 
@@ -173,6 +181,8 @@ export class GCodeRenderer {
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
         this.calcMinMax(lastPoint)
 
+        const layerPointsCache: Map<number, {start: number, end: number}> = new Map()
+
         const relative: {
             x: boolean,
             y: boolean,
@@ -223,7 +233,9 @@ export class GCodeRenderer {
                     let radius = (e - lastE) / length * 10
 
                     if (radius == 0) {
-                        radius = 0.01
+                        radius = this.travelWidth
+                    } else {
+                        this.calcMinMax(newPoint)
                     }
 
                     const color = this.colorizer.getColor({
@@ -239,8 +251,33 @@ export class GCodeRenderer {
                     // but the LinePoint contains the radius for the 'next' line
                     // we need to combine the last point with the current radius.
                     this.points.push(new LinePoint(lastPoint.clone(), radius, color))
+
+                    if (lastPoint.z !== newPoint.z) {
+                        let last = layerPointsCache.get(lastPoint.z)
+                        let current = layerPointsCache.get(newPoint.z)
+
+                        if (last === undefined) {
+                            last = {
+                                end: 0,
+                                start: 0
+                            }
+                        }
+
+                        if (current === undefined) {
+                            current = {
+                                end: 0,
+                                start: 0
+                            }
+                        }
+
+                        last.end = this.points.length-1
+                        current.start = this.points.length
+
+                        layerPointsCache.set(lastPoint.z, last)
+                        layerPointsCache.set(newPoint.z, current)
+                    }
+
                     lastPoint = newPoint
-                    this.calcMinMax(newPoint)                         
                 }
 
                 lastPoint = new Vector3(x, y, z)
@@ -265,6 +302,8 @@ export class GCodeRenderer {
         this.combinedLine = new LineTubeGeometry(this.points)
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
 
+        this.layerIndex = Array.from(layerPointsCache.values()).sort((v1, v2) => v1.start - v2.start)
+
         this.fitCamera()
         const ambientLight = new AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
@@ -279,38 +318,53 @@ export class GCodeRenderer {
         this.scene.add(spotLight2);
     }
 
-    startLoop() {
+    public startLoop() {
+        if (this.combinedLine === undefined) {
+            throw new Error("render has not been called yet")
+        }
         this.running = true
-        this.loop()
+        this.draw()
     }
 
-    update() {
-
-    }
-
-    private loop = () => {
+    private draw() {
         if (!this.running || !this.camera) {
             return
         }
-        requestAnimationFrame(this.loop)
-        this.update()
-	    this.renderer.render(this.scene, this.camera)
+        this.renderer.render(this.scene, this.camera)
     }
 
-    element(): HTMLCanvasElement {
+    public slice(start?: number, end?: number) {
+        this.combinedLine?.slice(start, end)
+        this.draw()
+    }
+
+    public sliceLayer(start?: number, end?: number) {
+        this.combinedLine?.slice(start && this.layerIndex[start]?.start, end && this.layerIndex[end]?.end)
+        this.draw()
+    }
+
+    public element(): HTMLCanvasElement {
         return this.renderer.domElement
     }
 
-    dispose() {
+    public dispose() {
         this.running = false
-        //this.lines.forEach(l => l.dispose())
         this.cameraControl?.dispose()
         this.combinedLine?.dispose()
         this.texture?.dispose()
     }
 
-    resize(width: number, height: number) {
+    public pointsCount(): number {
+        return this.combinedLine?.pointsCount() || 0
+    }
+
+    public layers(): number {
+        return this.layerIndex.length || 0
+    }
+
+    public resize(width: number, height: number) {
         this.camera = this.newCamera(width, height)
         this.renderer.setSize(width, height)
+        this.draw()
     }
 }

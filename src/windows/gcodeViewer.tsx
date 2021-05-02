@@ -6,6 +6,7 @@ import { SpeedColorizer } from "../gcode/SegmentColorizer";
 
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
+    private bottomGap: number = 20
 
     constructor(gcode?: string) {
         super()
@@ -37,13 +38,27 @@ export default class GCodeViewer extends Window {
         
                 gcodeString = await res.text()
             }
-            
-            this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height())
+
+            this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height() - this.bottomGap)
             this.renderer.colorizer = new SpeedColorizer(this.renderer.getMinMaxValues().minSpeed || 0, this.renderer.getMinMaxValues().maxSpeed)
             await this.renderer.render()
-            
+
             this.setWindowContent(
-                <>{this.renderer.element()}</>
+                <div className="gcode-viewer">
+                    {this.renderer.element()}
+                    <div className="toolbar">
+                    <input  // TODO: make toolbar generic in window?
+                        type="range" 
+                        min="1" 
+                        max={this.renderer.layers().toString()} 
+                        value={this.renderer.layers().toString()} 
+                        className="end-slider" 
+                        oninput={(e: Event) => {
+                            const target = e.target as HTMLInputElement
+                            this.renderer?.sliceLayer(0, Number.parseInt(target.value))
+                        }} />
+                    </div>
+                </div>
             )
 
             this.renderer.startLoop()
@@ -52,7 +67,7 @@ export default class GCodeViewer extends Window {
                     return
                 }
 
-                this.renderer.resize(this.width(), this.height())
+                this.renderer.resize(this.width(), this.height() - this.bottomGap)
             }
         }
 

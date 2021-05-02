@@ -48,17 +48,44 @@ export class LineTubeGeometry extends BufferGeometry {
         this.setAttribute('color', new Float32BufferAttribute(this.colors, 3));
     }
 
+    public pointsCount(): number {
+        return this.points.length
+    }
+
+    /**
+     * Slices the rendered part oof the line based on the passed start and end segments.
+     * 0, this.points.length renders everything
+     * @param start the starting segment
+     * @param end the ending segment (excluding)
+     */
+    public slice(start: number = 0, end: number = this.points.length) {
+        // TODO: support negative values like the slice from Array?
+        if (start < 0 || end < 0) {
+            throw new Error("negative values are not supported, yet")
+        }
+
+        const seg = (this.radialSegments + 1) * 6
+
+        let startI = start * seg * 2
+        let endI = (end-1) * seg * 2
+
+        if (end === this.points.length) {
+            endI += this.radialSegments * 6
+        }
+
+        if (start > 0) {
+            startI += this.radialSegments * 6
+        }
+        
+        // TODO: render an 'ending / starting' so that there is no hole.
+        this.setIndex(this.indices.slice(startI, endI));
+    }
+
     generateBufferData() {
         //const isEven = this.points.length % 2 === 0
         for ( let i = 0; i < this.points.length-1; i++ ) {
             this.generateSegment(i);
         }
-
-        // Add the missing segment for odd count of points
-        // if (!isEven) {
-        //     this.generateSegment(this.points.length-2, 2);
-        // }
-
 
         this.generateUVs();
 
@@ -80,7 +107,7 @@ export class LineTubeGeometry extends BufferGeometry {
         // point 1 and 2 should always exist
         let point = this.points[i]
         let nextPoint = this.points[i+1]
-        let nenxtNextPoint = this.points[i+2]
+        let nextNextPoint = this.points[i+2]
 
         const frame = this.computeFrenetFrames([point.point, nextPoint.point], false)
 
@@ -134,7 +161,7 @@ export class LineTubeGeometry extends BufferGeometry {
             segmentsPoints[2].push(createPointData(i, j, normal, nextPoint.point, point.radius, point.color))
 
             // if the next point is the last one, also finish the line by inserting one with zero radius.
-            if (nenxtNextPoint === undefined) {
+            if (nextNextPoint === undefined) {
                 segmentsPoints[3].push(createPointData(i+1, j, normal, nextPoint.point, 0, point.color))
             }
         }
@@ -146,9 +173,9 @@ export class LineTubeGeometry extends BufferGeometry {
 
     generateIndices() {
        for (let i=(this.radialSegments+2); i<this.segments.length; i++) {
-            const a = i-1;
+            const a = i - 1;
             const b = i - this.radialSegments - 2;
-            const c = i - this.radialSegments-1;
+            const c = i - this.radialSegments - 1;
             const d = i;
 
             this.segments[i].indices = [
