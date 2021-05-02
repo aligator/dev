@@ -1,6 +1,7 @@
 import * as PlainJSX from "../plainJSX";
 import {Window} from "../window";
 import { GCodeRenderer } from "../gcode/gcode";
+import { SpeedColorizer } from "../gcode/SegmentColorizer";
 
 
 export default class GCodeViewer extends Window {
@@ -38,11 +39,14 @@ export default class GCodeViewer extends Window {
             }
             
             this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height())
+            this.renderer.colorizer = new SpeedColorizer(this.renderer.getMinMaxValues().minSpeed || 0, this.renderer.getMinMaxValues().maxSpeed)
+            await this.renderer.render()
+            
             this.setWindowContent(
                 <>{this.renderer.element()}</>
             )
 
-            this.renderer.render()
+            this.renderer.startLoop()
             this.onResize = () => {
                 if (!this.renderer) {
                     return

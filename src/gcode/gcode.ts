@@ -16,6 +16,8 @@ import {
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { LineTubeGeometry } from "./LineTubeGeometry";
 import { LinePoint } from "./LinePoint";
+import { Lut } from 'three/examples/jsm/math/Lut';
+import { SegmentColorizer, SimpleColorizer } from './SegmentColorizer';
 
 export class GCodeRenderer {
 
@@ -27,9 +29,8 @@ export class GCodeRenderer {
     private camera: PerspectiveCamera
 
     private texture?: Texture
-    private gopherBlue = new Color("#29BEB0")
     private lineMaterial = new MeshPhongMaterial({  vertexColors: true } )
-//color: this.gopherBlue,
+
     private points: LinePoint[] = []
     private combinedLine?: BufferGeometry
 
@@ -37,6 +38,13 @@ export class GCodeRenderer {
 
     private min?: Vector3
     private max?: Vector3
+
+    private minTemp: number | undefined = undefined
+    private maxTemp = 0
+    private minSpeed: number | undefined = undefined
+    private maxSpeed = 0
+
+    public colorizer: SegmentColorizer = new SimpleColorizer()
 
     constructor(gCode: string, width: number, height: number) {
         console.log("init")
@@ -48,7 +56,16 @@ export class GCodeRenderer {
 
         this.gCode = gCode
 
-        this.init()
+        this.calcMinMaxMetadata()
+    }
+
+    public getMinMaxValues() {
+        return {
+            minTemp: this.minTemp,
+            maxTemp: this.maxTemp,
+            minSpeed: this.minSpeed,
+            maxSpeed: this.maxSpeed
+        }
     }
 
     private newCamera(width: number, height: number) {
@@ -104,39 +121,57 @@ export class GCodeRenderer {
             this.min.z = newPoint.z
         }
     }
-/*
-    private addLine(point1: Vector3, lastExtrusion: number, point2: Vector3, extrusion: number) {
-        //const color = this.lines.length % 2 === 0 ? new Color("#ff0000") : new Color("#00ff00")
-        if (point1.equals(point2)) {
-            // ToDo: lines of zero length - check why that happens
-            return
+
+    private parseValue(value?: string): number | undefined {
+        if (!value) {
+            return undefined
         }
-        const curve = new LineCurve3(point1, point2)
-        const length = curve.getLength()
+        return Number.parseFloat(value.substring(1))
+    }
 
-        let radius = (extrusion - lastExtrusion) / length * 10
+    /**
+     * Pre-calculates the min max metadata which may be needed for the colorizers.
+     */
+    private calcMinMaxMetadata() {
+        this.gCode.split("\n").forEach((line)=> {
+            if (line[0] === ";") {
+                return
+            }
 
-        const point = new LinePoint(point2, radius);
+            const cmd = line.split(" ")
+            if (cmd[0] === "G0" || cmd[0] === "G1") {
+                // Feed rate -> speed
+                const f = this.parseValue(cmd.find((v) => v[0] === "F"))
 
-       /!* const colors: number[] = []
-        for (let i = 0, n = lineGeometry.attributes.position.count; i < n; ++ i) {
-            colors.push(...this.gopherBlue.toArray());
-        }
-        lineGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
-*!/
-        this.points.push(point)
-    }*/
+                if (f === undefined) {
+                    return
+                }
 
-    private async init() {
+                if (f > this.maxSpeed) {
+                    this.maxSpeed = f
+                }
+                if (this.minSpeed === undefined || f < this.minSpeed) {
+                    this.minSpeed = f
+                }
+            } else if (cmd[0] === "M104" || cmd[0] === "M109") {
+                // hot end temperature
+                // M104 S205 ; set hot end temp
+                // M109 S205 ; wait for hot end temp
+                const hotendTemp = this.parseValue(cmd.find((v) => v[0] === "S")) || 0
+
+                if (hotendTemp > this.maxTemp) {
+                    this.maxTemp = hotendTemp
+                }
+                if (this.minTemp === undefined || hotendTemp < this.minTemp) {
+                    this.minTemp = hotendTemp
+                }
+            }
+        })
+    }
+
+    public async render() {
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
         this.calcMinMax(lastPoint)
-
-        function parseValue(value?: string): number | undefined {
-            if (!value) {
-                return undefined
-            }
-            return Number.parseFloat(value.substring(1))
-        }
 
         const relative: {
             x: boolean,
@@ -148,9 +183,11 @@ export class GCodeRenderer {
         }
 
         let lastE = 0
+        let hotendTemp = 0
+        let lastF = 0
 
-        function getValue(cmd: string[], name: string, last: number, relative: boolean): number {
-            let val = parseValue(cmd.find((v) => v[0] === name))
+        const getValue = (cmd: string[], name: string, last: number, relative: boolean): number => {
+            let val = this.parseValue(cmd.find((v) => v[0] === name))
 
             if (val !== undefined) {
                 if (relative) {
@@ -174,6 +211,7 @@ export class GCodeRenderer {
                 const y = getValue(cmd,"Y", lastPoint.y, relative.y)
                 const z = getValue(cmd,"Z", lastPoint.z, relative.z)
                 const e = getValue(cmd,"E", lastE, relative.e)
+                const f = this.parseValue(cmd.find((v) => v[0] === "F")) || lastF
 
                 const newPoint = new Vector3(x, y, z)
 
@@ -187,37 +225,42 @@ export class GCodeRenderer {
                     if (radius == 0) {
                         radius = 0.01
                     }
+
+                    const color = this.colorizer.getColor({
+                        radius,
+                        segmentStart: lastPoint,
+                        segmentEnd: newPoint,
+                        speed: f,
+                        temp: hotendTemp
+                    });
+
                     // Insert the last point with the current radius.
                     // As the GCode contains the extrusion for the current line, 
                     // but the LinePoint contains the radius for the 'next' line
                     // we need to combine the last point with the current radius.
-                    this.points.push(new LinePoint(lastPoint.clone(), radius, i % 2 ? this.gopherBlue : new Color("#FF0000")))
+                    this.points.push(new LinePoint(lastPoint.clone(), radius, color))
                     lastPoint = newPoint
                     this.calcMinMax(newPoint)                         
                 }
 
                 lastPoint = new Vector3(x, y, z)
                 lastE = e
+                lastF = f
             } else if (cmd[0] === "G92") {
                 // set state
                 lastPoint = new Vector3(
-                    parseValue(cmd.find((v) => v[0] === "X")) || lastPoint.x,
-                    parseValue(cmd.find((v) => v[0] === "Y")) || lastPoint.y,
-                    parseValue(cmd.find((v) => v[0] === "Z")) || lastPoint.z
+                    this.parseValue(cmd.find((v) => v[0] === "X")) || lastPoint.x,
+                    this.parseValue(cmd.find((v) => v[0] === "Y")) || lastPoint.y,
+                    this.parseValue(cmd.find((v) => v[0] === "Z")) || lastPoint.z
                 )
-                lastE = parseValue(cmd.find((v) => v[0] === "E")) || lastE
+                lastE = this.parseValue(cmd.find((v) => v[0] === "E")) || lastE
+            } else if (cmd[0] === "M104" || cmd[0] === "M109") {
+                // hot end temperature
+                // M104 S205 ; start heating hot end
+                // M109 S205 ; wait for hot end temperature
+                hotendTemp = this.parseValue(cmd.find((v) => v[0] === "S")) || 0
             }
         })
-
-        // this.points = this.points.slice(0, 30)
-
-        // this.points = [
-        //     new LinePoint(new Vector3(0, 0, 0), 10),
-        //     new LinePoint(new Vector3(100, 100, 100), 5),
-        //     new LinePoint(new Vector3(100, 0, 0), 10),
-        //     new LinePoint(new Vector3(100, 100, 0), 10),
-        //     new LinePoint(new Vector3(50, 20, 50), 10)
-        // ]
 
         this.combinedLine = new LineTubeGeometry(this.points)
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
@@ -226,7 +269,7 @@ export class GCodeRenderer {
         const ambientLight = new AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
 
-       const spotLight = new SpotLight(0xffffff, 0.9);
+        const spotLight = new SpotLight(0xffffff, 0.9);
         spotLight.position.set(200, 400, 300);
         spotLight.lookAt(new Vector3(0, 0, 0))
         const spotLight2 = new SpotLight(0xffffff, 0.9);
@@ -236,7 +279,7 @@ export class GCodeRenderer {
         this.scene.add(spotLight2);
     }
 
-    render() {
+    startLoop() {
         this.running = true
         this.loop()
     }
