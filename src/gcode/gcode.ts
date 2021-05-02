@@ -1,6 +1,5 @@
 import {
     Box3,
-    BufferGeometry,
     Mesh,
     PerspectiveCamera,
     Color,
