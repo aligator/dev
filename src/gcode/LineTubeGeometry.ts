@@ -13,43 +13,66 @@ interface PointData {
     radialNr: number
     vertices: number[]
     normals: number[]
-    uvs: number[]
-    indices: number[]
     colors: number[]
 }
 
 export class LineTubeGeometry extends BufferGeometry {
-    private points: LinePoint[]
+    /**
+     * Saves up to 4 linePoints to generate the model.
+     * The oldest one get's dropped after generating as it's not needed anymore.
+     */
+    private pointsBuffer: LinePoint[] = []
+    private pointsLength: number
     private readonly radialSegments: number
 
     // buffer
     private vertices: number[] = []
-    private normals: number[] = [];
+    private normals: number[] = []
+    private colors: number[] = []
     private uvs: number[] = [];
-    private colors: number[] = [];
     private indices: number[] = [];
 
-    private segments: PointData[] = []
+    private segmentsRadialNumbers: number[] = []
 
-    constructor(points: LinePoint[], radialSegments = 8) {
+    constructor(radialSegments = 8) {
         super()
         this.type = 'LineTubeGeometry'
-        this.points = points
+        this.pointsLength = 0
         this.radialSegments = radialSegments
+    }
 
-        // create buffer data
-        this.generateBufferData();
+    public add(point: LinePoint) {
+        this.pointsLength++
+        this.pointsBuffer.push(point)
+        if (this.pointsBuffer.length === 3) {
+            // For the first time, use index 0 to have 'no' previous
+            this.generateSegment(0);
+        } else if (this.pointsBuffer.length >= 4) {
+            this.generateSegment(1);
+        }
+    }
 
-        // build geometry
-        this.setIndex(this.indices);
+    public finish() {
+        // generate the last segment
+        this.generateSegment(1);
+
         this.setAttribute('position', new Float32BufferAttribute(this.vertices, 3));
         this.setAttribute('normal', new Float32BufferAttribute(this.normals, 3));
-        this.setAttribute('uv', new Float32BufferAttribute(this.uvs, 2));
         this.setAttribute('color', new Float32BufferAttribute(this.colors, 3));
+
+        this.generateUVs();
+        this.setAttribute('uv', new Float32BufferAttribute(this.uvs, 2));
+
+        // finally create faces
+        this.generateIndices();
+        this.setIndex(this.indices);
+
+        // not needed anymore
+        this.segmentsRadialNumbers = []
     }
 
     public pointsCount(): number {
-        return this.points.length
+        return this.pointsLength
     }
 
     /**
@@ -58,7 +81,7 @@ export class LineTubeGeometry extends BufferGeometry {
      * @param start the starting segment
      * @param end the ending segment (excluding)
      */
-    public slice(start: number = 0, end: number = this.points.length) {
+    public slice(start: number = 0, end: number = this.pointsLength) {
         // TODO: support negative values like the slice from Array?
         if (start < 0 || end < 0) {
             throw new Error("negative values are not supported, yet")
@@ -69,7 +92,7 @@ export class LineTubeGeometry extends BufferGeometry {
         let startI = start * seg * 2
         let endI = (end-1) * seg * 2
 
-        if (end === this.points.length) {
+        if (end === this.pointsLength) {
             endI += this.radialSegments * 6
         }
 
@@ -81,37 +104,17 @@ export class LineTubeGeometry extends BufferGeometry {
         this.setIndex(this.indices.slice(startI, endI));
     }
 
-    generateBufferData() {
-        //const isEven = this.points.length % 2 === 0
-        for ( let i = 0; i < this.points.length-1; i++ ) {
-            this.generateSegment(i);
-        }
-
-        this.generateUVs();
-
-        // finally create faces
-        this.generateIndices();
-
-        this.segments.forEach((s) => {
-            this.normals.push(...s.normals)
-            this.vertices.push(...s.vertices)
-            this.uvs.push(...s.uvs)
-            this.indices.push(...s.indices)
-            this.colors.push(...s.colors)
-        })
-    } 
-
     generateSegment(i: number) {
-        let prevPoint = this.points[i-1]
+        let prevPoint = this.pointsBuffer[i-1]
         
         // point 1 and 2 should always exist
-        let point = this.points[i]
-        let nextPoint = this.points[i+1]
-        let nextNextPoint = this.points[i+2]
+        let point = this.pointsBuffer[i]
+        let nextPoint = this.pointsBuffer[i+1]
+        let nextNextPoint = this.pointsBuffer[i+2]
 
         const frame = this.computeFrenetFrames([point.point, nextPoint.point], false)
 
-        const lastRadius = this.points[i-1]?.radius || 0
+        const lastRadius = this.pointsBuffer[i-1]?.radius || 0
 
         function createPointData(pointNr: number, radialNr: number, normal: Vector3, point: Vector3, radius: number, color: Color): PointData {
             return {
@@ -123,12 +126,12 @@ export class LineTubeGeometry extends BufferGeometry {
                     point.y + radius * normal.y,
                     point.z + radius * normal.z
                 ],
-                uvs: [],
-                indices: [],
                 colors: color.toArray()
             }
         }
 
+        // The data is saved here to maintain the correct order.
+        // After the segments are generated, they are pushed to the buffer one by one.
         const segmentsPoints: PointData[][] = [
             [], [], [], []
         ]
@@ -166,39 +169,49 @@ export class LineTubeGeometry extends BufferGeometry {
             }
         }
 
-        this.segments.push(...segmentsPoints.reduce((prev, current) => {
-            return [...prev, ...current]
-        }, []))
+        // Save everything into the buffers.
+        segmentsPoints.forEach((p) => {
+            const normals = p.reduce((prev, cur) => [...prev, ...cur.normals], [] as number[])
+            this.normals.push(...normals)
+            const colors = p.reduce((prev, cur) => [...prev, ...cur.colors], [] as number[])
+            this.colors.push(...colors)
+            const vertices = p.reduce((prev, cur) => [...prev, ...cur.vertices], [] as number[])
+            this.vertices.push(...vertices)
+            this.segmentsRadialNumbers.push(...p.map((cur) => cur.radialNr))
+        })
+        
+        if (this.pointsBuffer.length >= 4) {
+            // delete the first point. It's not needed anymore.
+            this.pointsBuffer = this.pointsBuffer.slice(1)
+        }
     }
 
     generateIndices() {
-       for (let i=(this.radialSegments+2); i<this.segments.length; i++) {
+       for (let i=(this.radialSegments+2); i<this.segmentsRadialNumbers.length; i++) {
             const a = i - 1;
             const b = i - this.radialSegments - 2;
             const c = i - this.radialSegments - 1;
             const d = i;
 
-            this.segments[i].indices = [
+            this.indices.push(
                 a, b, c,
                 d, a, c
-            ]
+            )
         }
     }
 
     generateUVs() {
-        for (let i=0; i<this.segments.length; i++) {
+        for (let i=0; i<this.segmentsRadialNumbers.length; i++) {
 
             this.uvs.push(
                 (i / this.radialSegments) -1,
-                this.segments[i].radialNr / this.radialSegments
+                this.segmentsRadialNumbers[i] / this.radialSegments
             )
         }
     }
 
     toJSON() {
-        const data = BufferGeometry.prototype.toJSON.call(this);
-        data.points = JSON.stringify(this.points);
-        return data;
+        throw new Error("not implemented")
     }
 
     getTangent(point1: Vector3, point2: Vector3, optionalTarget?: Vector3) {

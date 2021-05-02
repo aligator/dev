@@ -30,10 +30,9 @@ export class GCodeRenderer {
     private texture?: Texture
     private lineMaterial = new MeshPhongMaterial({  vertexColors: true } )
 
-    private points: LinePoint[] = []
     private combinedLine?: LineTubeGeometry
 
-    private readonly gCode: string
+    private gCode: string
 
     private min?: Vector3
     private max?: Vector3
@@ -47,6 +46,7 @@ export class GCodeRenderer {
 
     public travelWidth: number = 0.01
     public colorizer: SegmentColorizer = new SimpleColorizer()
+    public radialSegments: number = 8
 
     constructor(gCode: string, width: number, height: number, background: Color) {
         console.log("init")
@@ -141,8 +141,8 @@ export class GCodeRenderer {
      * Pre-calculates the min max metadata which may be needed for the colorizers.
      */
     private calcMinMaxMetadata() {
-        this.gCode.split("\n").forEach((line)=> {
-            if (line[0] === ";") {
+        this.gCode.split("\n").forEach((line, i)=> {
+            if (line === undefined || line[0] === ";") {
                 return
             }
 
@@ -209,8 +209,12 @@ export class GCodeRenderer {
             return val
         }
 
-        this.gCode.split("\n").forEach((line, i)=> {
-            if (line[0] === ";") {
+        this.combinedLine = new LineTubeGeometry(this.radialSegments)
+
+        const lines: (string | undefined)[] = this.gCode.split("\n")
+        this.gCode = ""
+        lines.forEach((line, i)=> {
+            if (this.combinedLine === undefined || line === undefined || line[0] === ";") {
                 return
             }
 
@@ -249,7 +253,7 @@ export class GCodeRenderer {
                     // As the GCode contains the extrusion for the current line, 
                     // but the LinePoint contains the radius for the 'next' line
                     // we need to combine the last point with the current radius.
-                    this.points.push(new LinePoint(lastPoint.clone(), radius, color))
+                    this.combinedLine.add(new LinePoint(lastPoint.clone(), radius, color))
 
                     if (lastPoint.z !== newPoint.z) {
                         let last = layerPointsCache.get(lastPoint.z)
@@ -269,8 +273,8 @@ export class GCodeRenderer {
                             }
                         }
 
-                        last.end = this.points.length-1
-                        current.start = this.points.length
+                        last.end = this.combinedLine.pointsCount()-1
+                        current.start = this.combinedLine.pointsCount()
 
                         layerPointsCache.set(lastPoint.z, last)
                         layerPointsCache.set(newPoint.z, current)
@@ -296,9 +300,11 @@ export class GCodeRenderer {
                 // M109 S205 ; wait for hot end temperature
                 hotendTemp = this.parseValue(cmd.find((v) => v[0] === "S")) || 0
             }
+
+            lines[i] = undefined
         })
 
-        this.combinedLine = new LineTubeGeometry(this.points)
+        this.combinedLine.finish()
         this.scene.add(new Mesh(this.combinedLine, this.lineMaterial))
 
         this.layerIndex = Array.from(layerPointsCache.values()).sort((v1, v2) => v1.start - v2.start)
