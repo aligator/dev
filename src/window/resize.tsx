@@ -1,6 +1,6 @@
 import * as PlainJSX from "../plainJSX";
 
-export function makeResizeable(resizeable: HTMLDivElement) {
+export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: number, height: number) => void) {
     const top: HTMLDivElement = (<div className='resizer top'></div>).getFirstAs()
     const bottom: HTMLDivElement = (<div className='resizer bottom'></div>).getFirstAs()
     const left: HTMLDivElement = (<div className='resizer left'></div>).getFirstAs()
@@ -25,6 +25,8 @@ export function makeResizeable(resizeable: HTMLDivElement) {
             resizeable.style.top = `${y}px`
             resizeable.style.height = `${newHeight}px`
             resizeable.style.maxHeight = `${newHeight}px`
+
+            onResize(resizeable.clientWidth, resizeable.clientHeight)
         })
     }
 
@@ -38,6 +40,8 @@ export function makeResizeable(resizeable: HTMLDivElement) {
 
             resizeable.style.height = `${newHeight}px`
             resizeable.style.maxHeight = `${newHeight}px`
+
+            onResize(resizeable.clientWidth, resizeable.clientHeight)
         })
     }
 
@@ -53,6 +57,8 @@ export function makeResizeable(resizeable: HTMLDivElement) {
 
             resizeable.style.left = `${x}px`
             resizeable.style.width = `${newWidth}px`
+
+            onResize(resizeable.clientWidth, resizeable.clientHeight)
         })
     }
 
@@ -65,6 +71,8 @@ export function makeResizeable(resizeable: HTMLDivElement) {
             const newWidth = x - currentX
 
             resizeable.style.width = `${newWidth}px`
+
+            onResize(resizeable.clientWidth, resizeable.clientHeight)
         })
     }
 

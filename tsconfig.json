@@ -16,8 +16,8 @@
             "scripthost"
         ]
     },
+    
     "include": [
         "src"
-    ],
-
+    ]
 }

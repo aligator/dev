@@ -10,6 +10,7 @@ export default class Help extends Program {
 `}<a href="#motd" onclick={runOnClick(ctx, "motd")} >motd</a>{`\t\t\tMessage of the day.
 `}<a href="#github" onclick={runOnClick(ctx, "github")} >github</a>{`\t\t\tGithub profile.
 `}<a href="#goslice" onclick={runOnClick(ctx, "goslice", "gopher.stl")} >goslice</a>{`\t\t\t`}<a target="_blank" href="https://github.com/aligator/goslice">GoSlice</a>{` running as webassembly inside the browser. Modified to accept URLs to stl files directly. Example file 'gopher.stl' is always available.
+`}<a href="#gcode" onclick={runOnClick(ctx, "gcode")} >gcode</a>{`\t\t\tA simple gcode viewer.
 `}<a href="#terminal" onclick={runOnClick(ctx, "terminal")} >terminal</a>{`\t\tOpens a new terminal window. (Do not open too many!)
 `}<a href="#exit" onclick={runOnClick(ctx, "exit")} >exit</a>{`\t\t\tClose the terminal.
 

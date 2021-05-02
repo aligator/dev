@@ -13,7 +13,10 @@ export class Window {
     private readonly titleElement: HTMLDivElement
     private readonly headerElement: HTMLDivElement
     private readonly contentElement: HTMLDivElement
+
+    onClose?: () => void
     onClick?: (e: MouseEvent) => void
+    onResize?: (width: number, height: number) => void
 
     component: PlainJSXElement
     element: HTMLDivElement
@@ -50,7 +53,11 @@ export class Window {
         this.element.style.height = "800px"
 
         dragElement(this.element, this.headerElement)
-        makeResizeable(this.element)
+        makeResizeable(this.element, (width: number, height: number) => {
+            if (this.onResize) {
+                this.onResize(width, height)
+            }
+        })
 
         this.element.addEventListener("click", (e) => {
             this.focus()
@@ -63,6 +70,14 @@ export class Window {
         getRoot().append(this.element)
     }
 
+    width(): number {
+        return this.element.clientWidth
+    }
+
+    height(): number {
+        return this.element.clientHeight - this.headerElement.clientHeight
+    }
+
     setWindowName(component: PlainJSXElement) {
         this.titleElement.innerHTML = ""
         this.titleElement.append(...component.children)
@@ -72,6 +87,10 @@ export class Window {
         this.contentElement.append(...component.children)
     }
     close() {
+        if (this.onClose) {
+            this.onClose()
+        }
+        
         this.component.delete()
     }
     focus() {
