@@ -49,12 +49,12 @@ export class GCodeRenderer {
     public travelWidth: number = 0.01
     public colorizer: SegmentColorizer = new SimpleColorizer()
 
-    constructor(gCode: string, width: number, height: number) {
+    constructor(gCode: string, width: number, height: number, background: Color) {
         console.log("init")
         this.scene = new Scene()
         this.renderer = new WebGLRenderer()
         this.renderer.setSize(width, height)
-        this.renderer.setClearColor(0x808080, 1)
+        this.renderer.setClearColor(background, 1)
         this.camera = this.newCamera(width, height)
 
         this.gCode = gCode
@@ -73,7 +73,7 @@ export class GCodeRenderer {
 
     private newCamera(width: number, height: number) {
         const camera = new PerspectiveCamera(75, width / height, 0.1, 1000)
-        camera.position.z = 200
+        camera.position.z = 100
 
         if (this.cameraControl) {
             this.cameraControl.dispose()
@@ -96,6 +96,7 @@ export class GCodeRenderer {
         const center = new Vector3()
         boundingBox.getCenter(center)
         this.camera.lookAt(center)
+
         if (this.cameraControl) {
             this.cameraControl.target = center
         }
@@ -179,7 +180,6 @@ export class GCodeRenderer {
 
     public async render() {
         let lastPoint: Vector3 = new Vector3(0, 0, 0)
-        this.calcMinMax(lastPoint)
 
         const layerPointsCache: Map<number, {start: number, end: number}> = new Map()
 

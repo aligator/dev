@@ -2,11 +2,14 @@
     color: #17F018;
 }
 
+.gcode-viewer {
+    background-color: #808080
+}
+
 .gcode-viewer>.toolbar {
     height: 20px;
 }
 
 .gcode-viewer>.toolbar>.end-slider {
     width: 100%;
-    background-color: grey;
 }

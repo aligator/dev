@@ -2,6 +2,7 @@ import * as PlainJSX from "../plainJSX";
 import {Window} from "../window";
 import { GCodeRenderer } from "../gcode/gcode";
 import { SpeedColorizer } from "../gcode/SegmentColorizer";
+import { Color } from "three";
 
 
 export default class GCodeViewer extends Window {
@@ -39,7 +40,7 @@ export default class GCodeViewer extends Window {
                 gcodeString = await res.text()
             }
 
-            this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height() - this.bottomGap)
+            this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height() - this.bottomGap, new Color(0x808080))
             this.renderer.colorizer = new SpeedColorizer(this.renderer.getMinMaxValues().minSpeed || 0, this.renderer.getMinMaxValues().maxSpeed)
             await this.renderer.render()
 
