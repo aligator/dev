@@ -1,9 +1,7 @@
 import {
     BufferGeometry,
-    Curve,
-    CurvePath,
+    Color,
     Float32BufferAttribute,
-    LineCurve3,
     MathUtils,
     Matrix4,
     Vector3
@@ -17,6 +15,7 @@ interface PointData {
     normals: number[]
     uvs: number[]
     indices: number[]
+    colors: number[]
 }
 
 export class LineTubeGeometry extends BufferGeometry {
@@ -27,6 +26,7 @@ export class LineTubeGeometry extends BufferGeometry {
     private vertices: number[] = []
     private normals: number[] = [];
     private uvs: number[] = [];
+    private colors: number[] = [];
     private indices: number[] = [];
 
     private segments: PointData[] = []
@@ -45,6 +45,7 @@ export class LineTubeGeometry extends BufferGeometry {
         this.setAttribute('position', new Float32BufferAttribute(this.vertices, 3));
         this.setAttribute('normal', new Float32BufferAttribute(this.normals, 3));
         this.setAttribute('uv', new Float32BufferAttribute(this.uvs, 2));
+        this.setAttribute('color', new Float32BufferAttribute(this.colors, 3));
     }
 
     generateBufferData() {
@@ -69,6 +70,7 @@ export class LineTubeGeometry extends BufferGeometry {
             this.vertices.push(...s.vertices)
             this.uvs.push(...s.uvs)
             this.indices.push(...s.indices)
+            this.colors.push(...s.colors)
         })
     } 
 
@@ -84,7 +86,7 @@ export class LineTubeGeometry extends BufferGeometry {
 
         const lastRadius = this.points[i-1]?.radius || 0
 
-        function createPointData(pointNr: number, radialNr: number, normal: Vector3, point: Vector3, radius: number): PointData {
+        function createPointData(pointNr: number, radialNr: number, normal: Vector3, point: Vector3, radius: number, color: Color): PointData {
             return {
                 pointNr,
                 radialNr,
@@ -95,7 +97,8 @@ export class LineTubeGeometry extends BufferGeometry {
                     point.z + radius * normal.z
                 ],
                 uvs: [],
-                indices: []
+                indices: [],
+                colors: color.toArray()
             }
         }
 
@@ -121,18 +124,18 @@ export class LineTubeGeometry extends BufferGeometry {
             // When the previous point doesn't exist, create one with the radius 0 (lastRadius is set to 0 in this case),
             // to create a closed starting point.
             if (prevPoint === undefined) {
-                segmentsPoints[0].push(createPointData(i, j, normal, point.point, lastRadius))
+                segmentsPoints[0].push(createPointData(i, j, normal, point.point, lastRadius, point.color))
             }
 
             // Then insert the current point with the current radius
-            segmentsPoints[1].push(createPointData(i, j, normal, point.point, point.radius))
+            segmentsPoints[1].push(createPointData(i, j, normal, point.point, point.radius, point.color))
 
             // And also the next point with the current radius to finish the current line.
-            segmentsPoints[2].push(createPointData(i, j, normal, nextPoint.point, point.radius))
+            segmentsPoints[2].push(createPointData(i, j, normal, nextPoint.point, point.radius, point.color))
 
             // if the next point is the last one, also finish the line by inserting one with zero radius.
             if (nenxtNextPoint === undefined) {
-                segmentsPoints[3].push(createPointData(i+1, j, normal, nextPoint.point, 0))
+                segmentsPoints[3].push(createPointData(i+1, j, normal, nextPoint.point, 0, point.color))
             }
         }
 
@@ -177,7 +180,9 @@ export class LineTubeGeometry extends BufferGeometry {
 		return tangent;
 	}
 
-    computeFrenetFrames(points: Vector3[], closed: boolean) {      
+    computeFrenetFrames(points: Vector3[], closed: boolean) {    
+        // Slightly modified from the three.js curve.
+
 		// see http://www.cs.indiana.edu/pub/techreports/TR425.pdf
 
 		const normal = new Vector3();

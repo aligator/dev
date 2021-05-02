@@ -28,8 +28,8 @@ export class GCodeRenderer {
 
     private texture?: Texture
     private gopherBlue = new Color("#29BEB0")
-    private lineMaterial = new MeshPhongMaterial({ color: this.gopherBlue, vertexColors: false } )
-
+    private lineMaterial = new MeshPhongMaterial({  vertexColors: true } )
+//color: this.gopherBlue,
     private points: LinePoint[] = []
     private combinedLine?: BufferGeometry
 
@@ -163,7 +163,7 @@ export class GCodeRenderer {
             return val
         }
 
-        this.gCode.split("\n").forEach((line)=> {
+        this.gCode.split("\n").forEach((line, i)=> {
             if (line[0] === ";") {
                 return
             }
@@ -188,10 +188,10 @@ export class GCodeRenderer {
                         radius = 0.01
                     }
                     // Insert the last point with the current radius.
-                    // As the gcode contains the extrusion for the urrent line, 
+                    // As the GCode contains the extrusion for the current line, 
                     // but the LinePoint contains the radius for the 'next' line
                     // we need to combine the last point with the current radius.
-                    this.points.push(new LinePoint(lastPoint.clone(), radius))
+                    this.points.push(new LinePoint(lastPoint.clone(), radius, i % 2 ? this.gopherBlue : new Color("#FF0000")))
                     lastPoint = newPoint
                     this.calcMinMax(newPoint)                         
                 }
