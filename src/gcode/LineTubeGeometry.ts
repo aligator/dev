@@ -48,16 +48,15 @@ export class LineTubeGeometry extends BufferGeometry {
     }
 
     generateBufferData() {
-        const isEven = this.points.length % 2 === 0
-        const pairs = Math.floor(this.points.length / 2)
-        for ( let i = 0; i < pairs; i++ ) {
-            this.generateSegment(i*2);
+        //const isEven = this.points.length % 2 === 0
+        for ( let i = 0; i < this.points.length-1; i++ ) {
+            this.generateSegment(i);
         }
 
         // Add the missing segment for odd count of points
-        if (!isEven) {
-            this.generateSegment(this.points.length-2, 2);
-        }
+        // if (!isEven) {
+        //     this.generateSegment(this.points.length-2, 2);
+        // }
 
 
         this.generateUVs();
@@ -73,46 +72,15 @@ export class LineTubeGeometry extends BufferGeometry {
         })
     } 
 
-    generateSegment(i: number, insertOnly?: number) {
-        // 0 --- 1 --- 2 --- 3
-        // As at the beginning of the line 0 is missing and at the end
-        // 3 is missing, only 1 --- 2 is guaranteed to exist always.
-        // The points are needed to calculate the normals correctly.
-
-        let points: Vector3[] = []
-
-        if (this.points[i-1]) {
-            points.push(this.points[i-1].point)
-        }
-        points.push(this.points[i].point)
-        points.push(this.points[i+1].point)
-        if (this.points[i+2]) {
-            points.push(this.points[i+2].point)
-        }
-
-        let point0 = this.points[i-1]
+    generateSegment(i: number) {
+        let prevPoint = this.points[i-1]
         
         // point 1 and 2 should always exist
-        let point1 = this.points[i]
-        let point2 = this.points[i+1]
+        let point = this.points[i]
+        let nextPoint = this.points[i+1]
+        let nenxtNextPoint = this.points[i+2]
 
-        let point3 = this.points[i+2]
-
-        // let curves: LineCurve3[] = []
-
-        // const path = new CurvePath<Vector3>()
-        // if (point0 !== undefined) {
-        //     curves.push(new LineCurve3(point0.point, point1.point))
-        //     path.add(curves[curves.length-1])
-        // }
-        // curves.push(new LineCurve3(point1.point, point2.point))
-        // path.add(curves[curves.length-1])
-        // if (point3 !== undefined) {
-        //     curves.push(new LineCurve3(point2.point, point3.point))
-        //     path.add(curves[curves.length-1])
-        // }
-
-        let frame = this.computeFrenetFrames(points, false)
+        const frame = this.computeFrenetFrames([point.point, nextPoint.point], false)
 
         const lastRadius = this.points[i-1]?.radius || 0
 
@@ -131,9 +99,9 @@ export class LineTubeGeometry extends BufferGeometry {
             }
         }
 
-        const segmentsPoint1Connector: PointData[] = []
-        const segmentsPoint1: PointData[] = []
-        const segmentsPoint2: PointData[] = []
+        const segmentsPoints: PointData[][] = [
+            [], [], [], []
+        ]
 
         // generate normals and vertices for the current segment
         for ( let j = 0; j <= this.radialSegments; j ++ ) {
@@ -143,47 +111,34 @@ export class LineTubeGeometry extends BufferGeometry {
             const cos = -Math.cos(v);
 
             // vertex
-            if (insertOnly === 1 || insertOnly === undefined) {
-                // normal
+            
+            let normal = new Vector3()
+            normal.x = (cos * frame.normals[0].x + sin * frame.binormals[0].x);
+            normal.y = (cos * frame.normals[0].y + sin * frame.binormals[0].y);
+            normal.z = (cos * frame.normals[0].z + sin * frame.binormals[0].z);
+            normal.normalize();
 
-                let normal = new Vector3()
-                normal.x = (cos * frame.normals[0].x + sin * frame.binormals[0].x);
-                normal.y = (cos * frame.normals[0].y + sin * frame.binormals[0].y);
-                normal.z = (cos * frame.normals[0].z + sin * frame.binormals[0].z);
-                normal.normalize();
-
-                segmentsPoint1Connector.push(createPointData(i, j, normal, point1.point, lastRadius))
-
-                // normal
-                if (point3 !== undefined) {
-                    normal = new Vector3()
-                    normal.x = (cos * frame.normals[0].x + sin * frame.binormals[0].x);
-                    normal.y = (cos * frame.normals[0].y + sin * frame.binormals[0].y);
-                    normal.z = (cos * frame.normals[0].z + sin * frame.binormals[0].z);
-                    normal.normalize();
-                }
-
-                segmentsPoint1.push(createPointData(i, j, normal, point1.point, point1.radius))
+            // When the previous point doesn't exist, create one with the radius 0 (lastRadius is set to 0 in this case),
+            // to create a closed starting point.
+            if (prevPoint === undefined) {
+                segmentsPoints[0].push(createPointData(i, j, normal, point.point, lastRadius))
             }
 
-            if (insertOnly === 2 || insertOnly === undefined) {
-                let normalIndex = 1
-                if (!point0) {
-                    normalIndex = 0
-                }
+            // Then insert the current point with the current radius
+            segmentsPoints[1].push(createPointData(i, j, normal, point.point, point.radius))
 
-                // normal
-                let normal = new Vector3()
-                normal.x = (cos * frame.normals[normalIndex].x + sin * frame.binormals[normalIndex].x);
-                normal.y = (cos * frame.normals[normalIndex].y + sin * frame.binormals[normalIndex].y);
-                normal.z = (cos * frame.normals[normalIndex].z + sin * frame.binormals[normalIndex].z);
-                normal.normalize();
+            // And also the next point with the current radius to finish the current line.
+            segmentsPoints[2].push(createPointData(i, j, normal, nextPoint.point, point.radius))
 
-                segmentsPoint2.push(createPointData(i+1, j, normal, point2.point, point2.radius))
+            // if the next point is the last one, also finish the line by inserting one with zero radius.
+            if (nenxtNextPoint === undefined) {
+                segmentsPoints[3].push(createPointData(i+1, j, normal, nextPoint.point, 0))
             }
         }
 
-        this.segments.push(...segmentsPoint1Connector, ...segmentsPoint1, ...segmentsPoint2)
+        this.segments.push(...segmentsPoints.reduce((prev, current) => {
+            return [...prev, ...current]
+        }, []))
     }
 
     generateIndices() {
@@ -233,14 +188,13 @@ export class LineTubeGeometry extends BufferGeometry {
 		const vec = new Vector3();
 		const mat = new Matrix4();
 
-
 		// compute the tangent vectors for each segment
-		for ( let i = 1; i < points.length / 2 + (points.length % 2); i++) {
+		for ( let i = 1; i <  Math.floor(points.length / 2) + (points.length % 2 ? 0 : 1); i++) {
             const t = this.getTangent(points[i-1], points[i]);
 			t.normalize();
             tangents.push(t)
 		}
-
+        
         const segments = tangents.length-1
 
 		// select an initial normal vector perpendicular to the first tangent vector,
