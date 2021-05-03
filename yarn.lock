@@ -2425,10 +2425,10 @@ function-bind@^1.1.1:
   resolved "https://registry.yarnpkg.com/function-bind/-/function-bind-1.1.1.tgz#a56899d3ea3c9bab874bb9773b7c5ede92f4895d"
   integrity sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==
 
-gcode-viewer@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/gcode-viewer/-/gcode-viewer-0.1.1.tgz#f10a98db823be55b98b4da25151327de0bb89605"
-  integrity sha512-F04Z1cLxFitAxPi+ltroSqTKGQK1GSBIkLSacSszrBoSqVQYRNVZSWzzQZ1mOEGYWfEhFbhcZdxgg57W0IVstg==
+gcode-viewer@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/gcode-viewer/-/gcode-viewer-0.1.5.tgz#033f11608f0af613e10fe221fdef17d945995c6f"
+  integrity sha512-Wo3HoHQkTw+Hpjw8yu/PrqeBarzcgwvcg/IZ1767+9HoFxBKRxEBAczUdVYyHTHhJYd4BOKekY2ZPjl25k801Q==
   dependencies:
     three "^0.128.0"
 

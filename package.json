@@ -28,6 +28,6 @@
     "vinyl-source-stream": "^2.0.0"
   },
   "dependencies": {
-    "gcode-viewer": "^0.1.1"
+    "gcode-viewer": "^0.1.5"
   }
 }
