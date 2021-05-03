@@ -1,9 +1,7 @@
 import * as PlainJSX from "../plainJSX";
 import {Window} from "../window";
-import { GCodeRenderer } from "../gcode/gcode";
-import { SpeedColorizer } from "../gcode/SegmentColorizer";
+import { GCodeRenderer, SpeedColorizer } from "gcode-viewer";
 import { Color } from "three";
-
 
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
@@ -51,8 +49,8 @@ export default class GCodeViewer extends Window {
                     <input  // TODO: make toolbar generic in window?
                         type="range" 
                         min="1" 
-                        max={this.renderer.layers().toString()} 
-                        value={this.renderer.layers().toString()} 
+                        max={this.renderer.layerCount().toString()} 
+                        value={this.renderer.layerCount().toString()} 
                         className="end-slider" 
                         oninput={(e: Event) => {
                             const target = e.target as HTMLInputElement
@@ -62,7 +60,6 @@ export default class GCodeViewer extends Window {
                 </div>
             )
 
-            this.renderer.startLoop()
             this.onResize = () => {
                 if (!this.renderer) {
                     return

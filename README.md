@@ -52,3 +52,8 @@ I also experiment a bit with Golang to webassembly. That's why it is possible to
 
 ## commands
 As the website consists of just a virtual terminal, you can just type `help`.
+
+# Related
+My other projects which are used on this page:  
+* [GoSlice](https://github.com/aligator/GoSlice) An experimental stl-file slicer written in Go
+* [gcode-viewer](https://github.com/aligator/gcode-viewer) A simple GCode viewer made for GoSlice (but may read other GCode also)

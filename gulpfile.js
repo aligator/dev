@@ -57,7 +57,6 @@ gulp.task('browserify', function () {
             babelify,
             {
                 only: [
-                    "./node_modules/three/build/three.module.js",
                     "./node_modules/three/examples/jsm/*"
                 ],
                 global: true,
