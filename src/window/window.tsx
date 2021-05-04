@@ -80,22 +80,22 @@ export class Window {
         return this.element.clientHeight - this.headerElement.clientHeight
     }
 
-    setWindowName(component: PlainJSXElement) {
+    setWindowName(component: PlainJSXElement): void {
         this.titleElement.innerHTML = ""
         this.titleElement.append(...component.children)
     }
-    setWindowContent(component: PlainJSXElement) {
+    setWindowContent(component: PlainJSXElement): void {
         this.contentElement.innerHTML = ""
         this.contentElement.append(...component.children)
     }
-    close() {
+    close(): void {
         if (this.onClose) {
             this.onClose()
         }
         
         this.component.delete()
     }
-    focus() {
+    focus(): void {
         this.element.focus()
         const focused = document.getElementsByClassName("window-focused")
         for (let i=0; i<=focused.length; i++) {

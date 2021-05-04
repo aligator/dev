@@ -1,4 +1,4 @@
-import {PlainJSXElement, Fragment} from './plainJSX'
+import {PlainJSXElement} from './plainJSX'
 
 export default class Buffer {
     private onWrites: ((buffer: Buffer) => void)[] = []
@@ -10,7 +10,7 @@ export default class Buffer {
         this.buffer = new PlainJSXElement("")
     }
 
-    write(...values: (PlainJSXElement | PlainJSXElement[] | string)[]) {
+    write(...values: (PlainJSXElement | PlainJSXElement[] | string)[]): void {
         const printAll = (...data: (PlainJSXElement | PlainJSXElement[] | string)[]) => {
             data.forEach(element => {
                 if (element instanceof PlainJSXElement) {
@@ -54,7 +54,7 @@ export default class Buffer {
         return this.buffer;
     }
 
-    on(event: "write" | "read", cb: (buffer: Buffer) => void) {
+    on(event: "write" | "read", cb: (buffer: Buffer) => void): void {
         switch (event) {
             case "write":
                 this.onWrites.push(cb)

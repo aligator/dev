@@ -1,6 +1,6 @@
 import * as PlainJSX from "../plainJSX";
 
-export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: number, height: number) => void) {
+export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: number, height: number) => void): void {
     const top: HTMLDivElement = (<div className='resizer top'></div>).getFirstAs()
     const bottom: HTMLDivElement = (<div className='resizer bottom'></div>).getFirstAs()
     const left: HTMLDivElement = (<div className='resizer left'></div>).getFirstAs()
@@ -13,7 +13,7 @@ export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: num
         right
     )
 
-    top.onmousedown = (e) => {
+    top.onmousedown = () => {
         document.onmouseup = clearOnMouseMove
         document.onmousemove = (e => {
             const y = e.clientY;
@@ -30,7 +30,7 @@ export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: num
         })
     }
 
-    bottom.onmousedown = (e) => {
+    bottom.onmousedown = () => {
         document.onmouseup = clearOnMouseMove
         document.onmousemove = (e => {
             const y = e.clientY;
@@ -45,7 +45,7 @@ export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: num
         })
     }
 
-    left.onmousedown = (e) => {
+    left.onmousedown = () => {
         document.onmouseup = clearOnMouseMove
         document.onmousemove = (e => {
             const x = e.clientX;
@@ -62,7 +62,7 @@ export function makeResizeable(resizeable: HTMLDivElement, onResize: (width: num
         })
     }
 
-    right.onmousedown = (e) => {
+    right.onmousedown = () => {
         document.onmouseup = clearOnMouseMove
         document.onmousemove = (e => {
             const x = e.clientX;

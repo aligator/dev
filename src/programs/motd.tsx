@@ -4,7 +4,7 @@ import {runOnClick} from "../utils";
 
 
 export default class Motd extends Program {
-    async run(ctx: Context) {
+    async run(ctx: Context): Promise<number> {
         ctx.stdout.write(
             <>
 {` = `}<a href="#imprint" onclick={runOnClick(ctx, "imprint")}>Contact</a>{` ==============================================================================

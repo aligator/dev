@@ -1,10 +1,8 @@
 import * as PlainJSX from "../plainJSX";
 import Program, { Context } from "../program";
-import {runOnClick} from "../utils";
-
 
 export default class Imprint extends Program {
-    async run(ctx: Context) {
+    async run(ctx: Context): Promise<number> {
         // ToDo: base the size of the ASCII on the window size to be somehow "responsive"
 
         ctx.stdout.write(
@@ -19,7 +17,6 @@ export default class Imprint extends Program {
                 Germany<br/>
             </div>
         )
-        ctx.terminal.runCommand(["github"])
-        return 0
+        return ctx.terminal.runCommand(["github"])
     } 
 } 

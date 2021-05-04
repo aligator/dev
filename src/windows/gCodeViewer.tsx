@@ -6,7 +6,7 @@ import './gCodeViewer.css'
 
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
-    private bottomGap: number = 20
+    private bottomGap = 20
 
     constructor(gCode?: string) {
         super()

@@ -4,7 +4,7 @@ export type HTMLElements<T> = {
     readonly [P in keyof T]: HTMLAttributes<T[P]>
 };
 
-export type IntrinsicElements = HTMLElements<HTMLElementTagNameMap>
+export type IntrinsicHTMLElements = HTMLElements<HTMLElementTagNameMap>
 
 export class PlainJSXElement {
     children: (Element | string)[] = []
@@ -34,6 +34,8 @@ export class PlainJSXElement {
             elem = document.createElement(name)
             if (props) {
                 Object.keys(props || {}).forEach((k) => {
+                    // because it can be any
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (elem as any)[k] = props[k]
                 })
             }
@@ -69,7 +71,7 @@ export class PlainJSXElement {
         }
     }
 
-    delete() {
+    delete(): void {
         this.children.forEach((c) => {
             if (c instanceof Element) {
                 c.remove()
@@ -90,8 +92,16 @@ export class PlainJSXElement {
     }
 }
 
-export const createElement: (name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (PlainJSXElement | PlainJSXElement[] | string)[]) => PlainJSXElement = (name, props, ...children): PlainJSXElement => {
+type CreateElementType = (name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (PlainJSXElement | PlainJSXElement[] | string)[]) => PlainJSXElement
+
+export const createElement: CreateElementType = (name, props, ...children): PlainJSXElement => {
     return new PlainJSXElement(name, props, ...children)
 }
 
 export const Fragment = (...children: (PlainJSXElement | PlainJSXElement[] | string)[]):  PlainJSXElement => createElement("", undefined, ...children)
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace JSX {
+    export type Element = PlainJSXElement
+    export type IntrinsicElements = IntrinsicHTMLElements
+}

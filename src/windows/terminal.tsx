@@ -10,10 +10,6 @@ import {Window} from "../window";
 import TerminalLauncher from "../programs/terminalLauncher";
 import GCodeViewerLauncher from "../programs/gCodeViewerLauncher";
 
-interface Runner{
-
-}
-
 export default class Terminal extends Window {
     stdout: Buffer = new Buffer()
     stderr: Buffer = new Buffer()
@@ -66,7 +62,7 @@ export default class Terminal extends Window {
             consoleInputElement.scrollIntoView({behavior: "smooth"});
         }))
 
-        consoleInputElement.addEventListener("change", (e) => {
+        consoleInputElement.addEventListener("change", () => {
             consoleInputElement.scrollIntoView({behavior: "smooth"});
         })
 
@@ -82,23 +78,24 @@ export default class Terminal extends Window {
         })
     }
 
-    runCommand(args: string[], options?: {
+    async runCommand(args: string[], options?: {
         noEcho: boolean
-    }) {
+    }): Promise<number> {
         if (!options?.noEcho) {
             this.stdout.write("$ " + args.join(" ") + "\n")
         }
 
         if (args[0].trim().length == 0) {
-            return
+            return 100
         }
 
         const cmd = this.commands[args[0]]
         if (cmd === undefined) {
             this.stderr.write(`command '${args[0]}' not found\n`)
-            return
+            return 101
         }
-        cmd.run({
+
+        return cmd.run({
             terminal: this,
             stderr: this.stderr,
             stdout: this.stdout

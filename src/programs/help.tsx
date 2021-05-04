@@ -3,7 +3,7 @@ import Program, { Context } from "../program";
 import {runOnClick} from "../utils";
 
 export default class Help extends Program {
-    async run(ctx: Context) {
+    async run(ctx: Context): Promise<number> {
         ctx.stdout.write(<>Help for <a target="_blank" href='https://aligator.dev'>aligator.dev</a>{`
         
 `}<a href="#help" onclick={runOnClick(ctx, "help")} >help</a>{`\t\t\tPrints this help.

@@ -1,10 +1,10 @@
-import * as PlainJSX from "../plainJSX";
+import PlainJSX from "../plainJSX";
 import Program, { Context } from "../program";
 import {runWasm} from "../wasm";
 import GCodeViewer from "../windows/gCodeViewer";
 
 export default class GoSlice extends Program {
-    async run(ctx: Context, args: string[]) {
+    async run(ctx: Context, args: string[]): Promise<number> {
         ctx.stderr.write("The whole website may freeze between the log outputs.\nThis is known and cannot be worked around currently!\n")
         ctx.stdout.write("Note: Chrome is preferred as it is much faster.\n\n")
 

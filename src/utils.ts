@@ -2,7 +2,7 @@ import {Context} from "./program";
 
 const root = document.getElementById('root')
 
-export const runOnClick = (ctx: Context, ...args: string[]) => (e: MouseEvent) => {
+export const runOnClick = (ctx: Context, ...args: string[]) => (e: MouseEvent): boolean => {
     e.preventDefault()
     e.stopPropagation()
 
@@ -10,7 +10,7 @@ export const runOnClick = (ctx: Context, ...args: string[]) => (e: MouseEvent) =
     return false
 }
 
-export const getRoot = () => {
+export const getRoot = (): HTMLElement => {
     if (!root) {
         throw new Error("root not found")
     }

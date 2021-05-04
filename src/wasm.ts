@@ -14,9 +14,13 @@ if (WebAssembly) {
 
 let instance = 0
 
+// because it can be any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function runWasm(ctx: Context, file: string, args: string[]): Promise<any> {
     return new Promise(((resolve, reject) => {
         if (WebAssembly.instantiateStreaming) {
+            // because not sure what it is
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const anyGlobalThis = (globalThis as any)
 
             const go = new anyGlobalThis.Go();

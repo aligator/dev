@@ -10,8 +10,8 @@
     "build:go": "GOOS=\"js\" GOARCH=\"wasm\" go build -o ./public/goslice.wasm ./go/goslice",
     "start": "webpack serve --open --config webpack.dev.js",
     "dist": "NODE_ENV=production webpack --config webpack.prod.js",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.1",
@@ -20,6 +20,7 @@
     "copy-webpack-plugin": "^8.1.1",
     "css-loader": "^5.2.4",
     "eslint": "^7.25.0",
+    "eslint-webpack-plugin": "^2.5.4",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.2.6",
     "html-webpack-plugin": "^5.3.1",
