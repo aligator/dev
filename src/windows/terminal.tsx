@@ -10,6 +10,8 @@ import {Window} from "../window";
 import TerminalLauncher from "../programs/terminalLauncher";
 import GCodeViewerLauncher from "../programs/gCodeViewerLauncher";
 
+import "./terminal.scss"
+
 export default class Terminal extends Window {
     stdout: Buffer = new Buffer()
     stderr: Buffer = new Buffer()
@@ -21,15 +23,15 @@ export default class Terminal extends Window {
         this.focus()
 
         this.setWindowName(<>Terminal</>)
-        const consoleContainer = <div id="console-container"></div>
+        const consoleContainer = <div className="console-container"></div>
         const consoleContainerElement = (consoleContainer).getFirstAs()
-        const consoleInput = <input id="console-input" tabIndex={0} />
+        const consoleInput = <input className="console-input" tabIndex={0} />
         const consoleInputElement: HTMLInputElement = (consoleInput).getFirstAs()
 
         this.setWindowContent(
-            <div id="console">
+            <div className="console">
                 {consoleContainer}
-                <div id="console-prompt">$</div>{consoleInput}
+                <div className="console-prompt">$</div>{consoleInput}
             </div>
         )
 
