@@ -7,7 +7,7 @@ export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
     private bottomGap: number = 20
 
-    constructor(gcode?: string) {
+    constructor(gCode?: string) {
         super()
         this.focus()
         this.onClose = () => {
@@ -23,11 +23,11 @@ export default class GCodeViewer extends Window {
         this.setWindowContent(
             <div className="gcode-viewer-message">Loading...</div>
         )
-
-        const getGcode = async () => {
-            let gcodeString = gcode
-            if (!gcodeString) {
-                const res = await fetch("gopher.stl.gcode")
+ 
+        const getGCode = async () => {
+            let gCodeString = gCode
+            if (!gCodeString) {
+                const res = await fetch("gopher_union.stl.gcode")
                 if (!res.body) {
                     this.setWindowContent(
                         <div className="gcode-viewer-message">No GCode</div>
@@ -35,10 +35,10 @@ export default class GCodeViewer extends Window {
                     return
                 }
         
-                gcodeString = await res.text()
+                gCodeString = await res.text()
             }
 
-            this.renderer = new GCodeRenderer(gcodeString, this.width(), this.height() - this.bottomGap, new Color(0x808080))
+            this.renderer = new GCodeRenderer(gCodeString, this.width(), this.height() - this.bottomGap, new Color(0x808080))
             this.renderer.colorizer = new SpeedColorizer(this.renderer.getMinMaxValues().minSpeed || 0, this.renderer.getMinMaxValues().maxSpeed)
             await this.renderer.render()
 
@@ -69,6 +69,6 @@ export default class GCodeViewer extends Window {
             }
         }
 
-        getGcode()
+        getGCode()
     }
 }

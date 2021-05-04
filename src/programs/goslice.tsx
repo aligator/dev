@@ -1,7 +1,7 @@
 import * as PlainJSX from "../plainJSX";
 import Program, { Context } from "../program";
 import {runWasm} from "../wasm";
-import GCodeViewer from "../windows/gcodeViewer";
+import GCodeViewer from "../windows/gCodeViewer";
 
 export default class GoSlice extends Program {
     async run(ctx: Context, args: string[]) {
