@@ -2,7 +2,7 @@ import * as PlainJSX from "../plainJSX";
 import {Window} from "../window";
 import { GCodeRenderer, SpeedColorizer, Color } from "gcode-viewer";
 
-import './gCodeViewer.css'
+import './gCodeViewer.scss'
 
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
@@ -52,7 +52,7 @@ export default class GCodeViewer extends Window {
                         min="1" 
                         max={this.renderer.layerCount().toString()} 
                         value={this.renderer.layerCount().toString()} 
-                        className="end-slider" 
+                        className="slider end-slider" 
                         oninput={(e: Event) => {
                             const target = e.target as HTMLInputElement
                             this.renderer?.sliceLayer(0, Number.parseInt(target.value))
