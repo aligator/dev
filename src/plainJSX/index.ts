@@ -5,4 +5,4 @@ export namespace JSX {
     export type IntrinsicElements = PlainJSX.IntrinsicElements
 }
 
-export { Fragment, createElement, HTMLElements, PlainJSXElement} from './plainJSX' 
+export { Fragment, createElement, PlainJSXElement} from './plainJSX' 

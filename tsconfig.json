@@ -1,20 +1,17 @@
 {
     "compilerOptions": {
-        "outDir": "tmp",
+        "outDir": "./dist/",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "allowSyntheticDefaultImports": true,
         "sourceMap": true,
-        "module": "CommonJS",
-        "esModuleInterop": true,
-        "target": "es2015",
+        "module": "es6",
+        "target": "es5",
+        "allowJs": true,
         "jsx": "react",
         "jsxFactory": "PlainJSX.createElement",
         "jsxFragmentFactory": "PlainJSX.Fragment",
         "strict": true,
-        "lib": [
-            "es5",
-            "es2015",
-            "dom",
-            "scripthost"
-        ]
     },
     
     "include": [

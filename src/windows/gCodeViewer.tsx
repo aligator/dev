@@ -1,7 +1,8 @@
 import * as PlainJSX from "../plainJSX";
 import {Window} from "../window";
-import { GCodeRenderer, SpeedColorizer } from "gcode-viewer";
-import { Color } from "three";
+import { GCodeRenderer, SpeedColorizer, Color } from "gcode-viewer";
+
+import './gCodeViewer.css'
 
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
@@ -27,7 +28,7 @@ export default class GCodeViewer extends Window {
         const getGCode = async () => {
             let gCodeString = gCode
             if (!gCodeString) {
-                const res = await fetch("gopher_union.stl.gcode")
+                const res = await fetch("gopher.stl.gcode")
                 if (!res.body) {
                     this.setWindowContent(
                         <div className="gcode-viewer-message">No GCode</div>

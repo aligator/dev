@@ -6,6 +6,8 @@ import "./move"
 import {dragElement} from "./move";
 import {makeResizeable} from "./resize";
 
+import './window.css'
+
 let lastWinID = 0;
 
 export class Window {

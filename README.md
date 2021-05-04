@@ -1,12 +1,7 @@
 # aligator.dev
 
 This is the source of my website [aligator.dev](https://aligator.dev).  
-It is built using just typescript, html and css. No React, no Vue, no jquery, no etc.
-In this project I try to use no js dependency other than some build dependencies, to 
-explore how good/bad it is possible to create a website with plain ts without thousands of other dependencies 
-which are automatically pulled in as soon as React or similar is used.
-
-The only dependencies used are for specific experiments, such as Go for Go web assembly and three.js for GCode rendering.
+It is built using just typescript, html and scss (+ some dev-deps). No React, no Vue, no jquery, no etc.
 
 As typescript itself already provides JSX transpilation, I use just that to build plain dom elements.
 So instead of something like this:
