@@ -8,7 +8,7 @@ export type IntrinsicHTMLElements = HTMLElements<HTMLElementTagNameMap>
 
 export type Child = (PlainJSXElement | PlainJSXElement[] | string)
 
-type Props = Record<string, unknown>
+type Props = Record<string, unknown> | null
 
 
 export class PlainJSXElement {
@@ -35,9 +35,8 @@ export class PlainJSXElement {
     constructor(type: string | ((props?: Props, children?: Child[]) => PlainJSXElement), props?: Props, ...children: Child[]) {
         let elem: Element
     
-        console.log(type)
         if (typeof type == "function") {
-            this.children.push(...type(props, children).children)
+            this.children.push(...type(props || {}, children || []).children)
             return 
         }
 

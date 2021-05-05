@@ -11,6 +11,7 @@ import TerminalLauncher from "../programs/terminalLauncher";
 import GCodeViewerLauncher from "../programs/gCodeViewerLauncher";
 
 import "./terminal.scss"
+import TestLauncher from "../programs/testLauncher";
 
 export default class Terminal extends Window {
     stdout: Buffer = new Buffer()
@@ -42,6 +43,7 @@ export default class Terminal extends Window {
         this.commands["imprint"] = new Imprint()
         this.commands["terminal"] = new TerminalLauncher()
         this.commands["gcode"] = new GCodeViewerLauncher()
+        this.commands["test"] = new TestLauncher()
         this.commands["exit"] = {
             run: async () => {
                 this.close()

@@ -56,7 +56,7 @@ export default class GCodeViewer extends Window {
                             oninput={(e: Event) => {
                                 const target = e.target as HTMLInputElement
                                 this.renderer?.sliceLayer(0, Number.parseInt(target.value))
-                            }} >huhu</Slider>
+                            }} />
                     </div>
                 </div>
             )
