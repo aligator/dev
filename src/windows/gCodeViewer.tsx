@@ -1,6 +1,7 @@
 import * as PlainJSX from "../plainJSX";
-import {Window} from "../window";
+import { Window } from "../window";
 import { GCodeRenderer, SpeedColorizer, Color } from "gcode-viewer";
+import { Slider } from "../components/Slider";
 
 import './gCodeViewer.scss'
 
@@ -24,7 +25,7 @@ export default class GCodeViewer extends Window {
         this.setWindowContent(
             <div className="gcode-viewer-message">Loading...</div>
         )
- 
+
         const getGCode = async () => {
             let gCodeString = gCode
             if (!gCodeString) {
@@ -35,7 +36,7 @@ export default class GCodeViewer extends Window {
                     )
                     return
                 }
-        
+
                 gCodeString = await res.text()
             }
 
@@ -47,16 +48,15 @@ export default class GCodeViewer extends Window {
                 <div className="gcode-viewer">
                     {this.renderer.element()}
                     <div className="toolbar">
-                    <input  // TODO: make toolbar generic in window?
-                        type="range" 
-                        min="1" 
-                        max={this.renderer.layerCount().toString()} 
-                        value={this.renderer.layerCount().toString()} 
-                        className="slider end-slider" 
-                        oninput={(e: Event) => {
-                            const target = e.target as HTMLInputElement
-                            this.renderer?.sliceLayer(0, Number.parseInt(target.value))
-                        }} />
+                        <Slider  // TODO: make toolbar generic in window?
+                            min="1"
+                            max={this.renderer.layerCount().toString()}
+                            value={this.renderer.layerCount().toString()}
+                            className="slider end-slider"
+                            oninput={(e: Event) => {
+                                const target = e.target as HTMLInputElement
+                                this.renderer?.sliceLayer(0, Number.parseInt(target.value))
+                            }} >huhu</Slider>
                     </div>
                 </div>
             )

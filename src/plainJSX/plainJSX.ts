@@ -6,6 +6,11 @@ export type HTMLElements<T> = {
 
 export type IntrinsicHTMLElements = HTMLElements<HTMLElementTagNameMap>
 
+export type Child = (PlainJSXElement | PlainJSXElement[] | string)
+
+type Props = Record<string, unknown>
+
+
 export class PlainJSXElement {
     children: (Element | string)[] = []
 
@@ -27,11 +32,18 @@ export class PlainJSXElement {
         return result
     }
    
-    constructor(name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (Element | PlainJSXElement | PlainJSXElement[] | string)[]) {
+    constructor(type: string | ((props?: Props, children?: Child[]) => PlainJSXElement), props?: Props, ...children: Child[]) {
         let elem: Element
     
-        if (name.length !== 0) {
-            elem = document.createElement(name)
+        console.log(type)
+        if (typeof type == "function") {
+            this.children.push(...type(props, children).children)
+            return 
+        }
+
+        if (typeof type === "string" && type.length !== 0) {
+            console.log(type)
+            elem = document.createElement(type)
             if (props) {
                 Object.keys(props || {}).forEach((k) => {
                     // because it can be any
@@ -92,13 +104,13 @@ export class PlainJSXElement {
     }
 }
 
-type CreateElementType = (name: string, props?: Omit<Record<string, unknown>, "children">, ...children: (PlainJSXElement | PlainJSXElement[] | string)[]) => PlainJSXElement
+type CreateElementType = (name: string, props?: Omit<Props, "children">, ...children: Child[]) => PlainJSXElement
 
 export const createElement: CreateElementType = (name, props, ...children): PlainJSXElement => {
     return new PlainJSXElement(name, props, ...children)
 }
 
-export const Fragment = (...children: (PlainJSXElement | PlainJSXElement[] | string)[]):  PlainJSXElement => createElement("", undefined, ...children)
+export const Fragment = (...children: Child[]):  PlainJSXElement => createElement("", undefined, ...children)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace JSX {
