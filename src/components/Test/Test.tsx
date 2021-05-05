@@ -10,7 +10,7 @@ interface Props {
 
 export default function Test({text}: Props): PlainJSXElement {
     let counter = 0
-    const counterRef = useRef("test-counter")
+    const counterRef = useRef()
 
     const handleClick = () => {
         counter++
@@ -21,7 +21,7 @@ export default function Test({text}: Props): PlainJSXElement {
     
     return (
         <div>
-            {text}<div id="test-counter">{`${counter}`}</div>
+            {text}<div id={counterRef.id}>{`${counter}`}</div>
             <button onclick={handleClick}>Do NOT Click Me</button>
             <Slider
                 min="1"
