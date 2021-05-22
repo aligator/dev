@@ -20,7 +20,7 @@ export default class Terminal extends Window {
     commands: Record<string, Program> = {}
   
     constructor() {
-        super()
+        super({})
         this.focus()
 
         this.setWindowName(<>Terminal</>)

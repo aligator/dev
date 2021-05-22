@@ -10,6 +10,13 @@ import './window.css'
 
 let lastWinID = 0;
 
+export interface Options {
+    width?: number
+    height?: number
+    x?: number
+    y?: number
+}
+
 export class Window {
     readonly windowID: string
     private readonly titleElement: HTMLDivElement
@@ -23,7 +30,7 @@ export class Window {
     component: PlainJSXElement
     element: HTMLDivElement
 
-    constructor() {
+    constructor({width, height, x, y}: Options) {
         this.windowID = `window-${lastWinID}`
         lastWinID++
         const content = <div className="window-content"></div>
@@ -50,9 +57,11 @@ export class Window {
         )
 
         this.element = this.component.getFirstAs()
-        this.element.style.width = "900px"
-        this.element.style.maxHeight = "800px"
-        this.element.style.height = "800px"
+        this.element.style.left = x ? `${x}px` : "0px"
+        this.element.style.top = y ? `${y}px` : "0px"
+        this.element.style.width = width ? `${width}px` : "900px"
+        this.element.style.maxHeight = height ? `${height}px` : "800px"
+        this.element.style.height = height ? `${height}px` : "800px"
 
         dragElement(this.element, this.headerElement)
         makeResizeable(this.element, (width: number, height: number) => {

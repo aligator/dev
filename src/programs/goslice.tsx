@@ -1,6 +1,7 @@
 import PlainJSX from "../plainJSX";
 import Program, { Context } from "../program";
 import {runWasm} from "../wasm";
+import Alert from "../windows/alert";
 import GCodeViewer from "../windows/gCodeViewer";
 
 export default class GoSlice extends Program {
@@ -22,7 +23,22 @@ export default class GoSlice extends Program {
             // Wait some time that the stdout gets fully written before posting the link.
             setTimeout(() => {
                 ctx.stdout.write(<><a href={url} download={filename}>{filename + " DOWNLOAD"}</a><br/></>)
-                new GCodeViewer(gcode)
+                
+                new Alert({
+                    title: "GoSlice finished",
+                    content: (<>
+                        <p>
+                            <a href={url} download={filename}>
+                                <button>{filename + " DOWNLOAD"}</button>
+                            </a>
+                        </p>
+                        <p>
+                            <button onclick={() => {
+                                new GCodeViewer(gcode)
+                            }}>{"open GCode Viewer"}</button>
+                        </p>
+                    </>)
+                })
             }, 1000)
             return 0
         }).catch((err) => {

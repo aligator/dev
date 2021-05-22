@@ -7,7 +7,7 @@
   "author": "aligator",
   "license": "MIT",
   "scripts": {
-    "build:go": "GOOS=\"js\" GOARCH=\"wasm\" go build -o ./public/goslice.wasm ./go/goslice",
+    "build:go": "GOOS=\"js\" GOARCH=\"wasm\" go build -o ./src/assets/goslice.wasm ./go/goslice",
     "start": "webpack serve --open --config webpack.dev.js",
     "dist": "NODE_ENV=production webpack --config webpack.prod.js",
     "lint": "eslint src",
