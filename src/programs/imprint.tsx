@@ -8,7 +8,8 @@ export default class Imprint extends Program {
         ctx.stdout.write(
             <div className="center">
                 <h1 className="color-heading">Contact</h1>
-                aligator (at) suncraft-server.de
+                me (at) aligator.dev<br/>
+                <a href="https://keys.mailvelope.com/pks/lookup?op=get&search=me@aligator.dev">PGP Key</a>
 
                 <h2 className="color-heading">Imprint</h2>
                 Johannes Hörmann<br/>
