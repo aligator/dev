@@ -1,9 +1,11 @@
 # aligator.dev
 
 This is the source of my website [aligator.dev](https://aligator.dev).  
-It is built using just typescript, html and scss (+ some dev-deps). No React, no Vue, no jquery, no etc.
+It is built using just some dev-dependencies like typescript, html and scss. No React, no Vue, no jquery, no etc.
 
-As typescript itself already provides JSX transpilation, I use just that to build plain dom elements.
+As typescript itself already provides JSX transpilation, I use just that to build plain dom elements.  
+However note that this is highly experimental!
+
 So instead of something like this:
 ```ts
 const div = document.createElement('div')
@@ -28,7 +30,7 @@ consoleContainer.append(...div.children)
 ```
 And this with only typescript as (dev)-dependency which I use anyway.
 
-The needed "glue" code (which is really not much) for that resides in `src/plainJSX` and typescript needs to now about it by using this config:
+The needed "glue" code (which is really not that much) for that resides in `src/plainJSX` and typescript needs to know about it by using this config:
 ```json
 {
     "compilerOptions": {
@@ -36,14 +38,13 @@ The needed "glue" code (which is really not much) for that resides in `src/plain
         "jsx": "react",
         "jsxFactory": "PlainJSX.createElement",
         "jsxFragmentFactory": "PlainJSX.Fragment",
-       
     },
     ...
 }
 ```
 
 ## Commands
-As the website consists of just a virtual terminal, you can just type `help`.
+As the website consists of just a virtual terminal, you can type `help`.
 
 ## GoSlice
 I also experiment a bit with Golang to webassembly. That's why it is possible to run

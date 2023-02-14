@@ -2,7 +2,8 @@ FROM node:alpine AS builder
 
 WORKDIR /app
 COPY ./ /app
-RUN yarn install --frozen-lockfile && yarn dist
+RUN yarn install --immutable 
+RUN yarn build
 
 FROM caddy:latest
 WORKDIR /srv
