@@ -1,0 +1,17 @@
+.gcode-viewer-message {
+    color: #17F018;
+}
+
+.gcode-viewer {
+    background-color: #808080;
+
+    >.toolbar {
+        height: 20px;
+        display: flex;
+        justify-content: center;
+
+        >.end-slider {
+            width: 90%;
+        }
+    }
+}

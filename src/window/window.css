@@ -1,0 +1,102 @@
+:root {
+    --window-border-width: 7px;
+    --window-header-height: 25px;
+    --window-header-corner-radius: 10px;
+    --window-button-size: 11px;
+}
+
+.window {
+    /* For window moving. */
+    position: absolute;
+}
+
+.window.window-focused {
+    z-index: 1000;
+}
+
+.window-content {
+    margin-left: var(--window-border-width);
+    background-color: #010101AA;
+
+    height: calc(100% - var(--window-header-height));
+    width: inherit;
+}
+
+.window-header {
+    display: flex;
+    flex-direction: row;
+
+    width: calc(100% + var(--window-border-width) + var(--window-border-width));
+    background-color: #AAAAAAAA;
+
+    /* Text */
+    text-align: center;
+    color: #fff;
+
+    /* Round corners */
+    border-top-left-radius: var(--window-header-corner-radius);
+    border-top-right-radius: var(--window-header-corner-radius);
+
+    height: var(--window-header-height);
+
+    /* Move */
+    cursor: move;
+}
+
+.window-buttons {
+    display: flex;
+    flex-direction: row;
+}
+
+.window-button {
+    cursor: pointer;
+
+    width: var(--window-button-size);
+    height: var(--window-button-size);
+
+    margin: calc((var(--window-header-height) - var(--window-button-size)) / 2);
+    border-radius: var(--window-header-height)
+}
+
+.window-button-close {
+    background-color: #c92525;
+    border: 1px solid #a00000;
+    color: black;
+}
+
+.window-header-spacer {
+    flex-grow: 1;
+}
+
+.window>.resizer {
+    background-color: #AAAAAAAA;
+    position: absolute;
+}
+
+.window>.resizer.top {
+    background-color: #FFFFFF00;
+    top: 0;
+    height: var(--window-border-width);
+    left:  var(--window-header-corner-radius);
+    width: 100%;
+    cursor: s-resize;
+}
+.window>.resizer.bottom {
+    height: var(--window-border-width);
+    width: calc(100% + var(--window-border-width) + var(--window-border-width));
+    cursor: s-resize;
+}
+.window>.resizer.right {
+    top: var(--window-header-height);
+    height: calc(100% - var(--window-header-height));
+    right: calc(0px - var(--window-border-width) - var(--window-border-width));
+    width: var(--window-border-width);
+    cursor: e-resize;
+}
+.window>.resizer.left {
+    top: var(--window-header-height);
+    height: calc(100% - var(--window-header-height));
+    width: var(--window-border-width);
+    left: 0px;
+    cursor: e-resize;
+}

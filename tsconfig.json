@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+      "outDir": "./dist/",
+      "moduleResolution": "node",
+      "noImplicitAny": true,
+      "allowSyntheticDefaultImports": true,
+      "sourceMap": true,
+      "module": "ESNext",
+      "lib": ["ESNext", "DOM"],
+      "target": "ESNext",
+      "allowJs": true,
+      "jsx": "react",
+      "jsxFactory": "PlainJSX.createElement",
+      "jsxFragmentFactory": "PlainJSX.Fragment",
+      "strict": true,
+  },
+  
+  "include": [
+      "src"
+, "public/js/wasm_exec.js"  ]
+}
