@@ -1,9 +1,9 @@
 @font-face {
-    font-family: 'TerminalMono';
-    src: url('./font/DroidSansMono.woff2') format('woff2'),
-        url('./font/DroidSansMono.woff') format('woff'),
-        url('./font/DroidSansMono.ttf')  format('truetype'),
-        url('./font/DroidSansMono.svg#DroidSansMono') format('svg');
+    font-family: "TerminalMono";
+    src: url("./font/DroidSansMono.woff2") format("woff2"),
+        url("./font/DroidSansMono.woff") format("woff"),
+        url("./font/DroidSansMono.ttf") format("truetype"),
+        url("./font/DroidSansMono.svg#DroidSansMono") format("svg");
 
     font-weight: normal;
     font-style: normal;
@@ -21,12 +21,24 @@ body {
     line-height: 1.4;
 }
 
-h1 {font-size: xxx-large;}
-h2 {font-size: xx-large;}
-h3 {font-size: x-large;}
-h4 {font-size: large;}
-h5 {font-size: medium;}
-h6 {font-size: small;}
+h1 {
+    font-size: xxx-large;
+}
+h2 {
+    font-size: xx-large;
+}
+h3 {
+    font-size: x-large;
+}
+h4 {
+    font-size: large;
+}
+h5 {
+    font-size: medium;
+}
+h6 {
+    font-size: small;
+}
 
 #root {
     background: inherit;

@@ -1,5 +1,5 @@
 import Buffer from "./buffer"
-import Terminal from "./windows/terminal";
+import Terminal from "./windows/terminal"
 
 export interface Context {
     terminal: Terminal

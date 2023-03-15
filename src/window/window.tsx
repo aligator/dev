@@ -1,14 +1,14 @@
-import * as PlainJSX from "../plainJSX";
-import {getRoot} from "../utils";
-import {PlainJSXElement} from "../plainJSX";
-import  "./resize"
+import * as PlainJSX from "../plainJSX"
+import { getRoot } from "../utils"
+import { PlainJSXElement } from "../plainJSX"
+import "./resize"
 import "./move"
-import {dragElement} from "./move";
-import {makeResizeable} from "./resize";
+import { dragElement } from "./move"
+import { makeResizeable } from "./resize"
 
-import './window.css'
+import "./window.css"
 
-let lastWinID = 0;
+let lastWinID = 0
 
 export class Window {
     readonly windowID: string
@@ -31,7 +31,10 @@ export class Window {
         const header = (
             <div className="window-header">
                 <div className="window-buttons">
-                    <div className="window-button window-button-close" onclick={() => this.close()} />
+                    <div
+                        className="window-button window-button-close"
+                        onclick={() => this.close()}
+                    />
                 </div>
                 <div className="window-header-spacer"></div>
                 {title}
@@ -40,7 +43,7 @@ export class Window {
         )
         this.titleElement = title.getFirstAs()
         this.headerElement = header.getFirstAs()
-        this.contentElement = (content).getFirstAs()
+        this.contentElement = content.getFirstAs()
 
         this.component = (
             <div id={this.windowID} className="window">
@@ -92,13 +95,13 @@ export class Window {
         if (this.onClose) {
             this.onClose()
         }
-        
+
         this.component.delete()
     }
     focus(): void {
         this.element.focus()
         const focused = document.getElementsByClassName("window-focused")
-        for (let i=0; i<=focused.length; i++) {
+        for (let i = 0; i <= focused.length; i++) {
             const item = focused.item(i)
             if (item) {
                 item.classList.remove("window-focused")

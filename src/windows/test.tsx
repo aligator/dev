@@ -1,11 +1,10 @@
-import * as PlainJSX from "../plainJSX";
-import { Window } from "../window";
-import { Test } from "../components/Test";
+import * as PlainJSX from "../plainJSX"
+import { Window } from "../window"
+import { Test } from "../components/Test"
 
-import './test.scss'
+import "./test.scss"
 
 export default class TestWindow extends Window {
-   
     constructor(text?: string) {
         super()
         this.focus()
@@ -13,7 +12,9 @@ export default class TestWindow extends Window {
         this.setWindowName(<>Test</>)
 
         this.setWindowContent(
-            <div className="gcode-viewer-message"><Test text={text || ""}></Test></div>
+            <div className="gcode-viewer-message">
+                <Test text={text || ""}></Test>
+            </div>
         )
     }
 }

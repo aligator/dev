@@ -1,6 +1,6 @@
-import PlainJSX, { PlainJSXElement } from "../../plainJSX";
-import { useRef } from "../../plainJSX/utils";
-import { Slider } from "../Slider";
+import PlainJSX, { PlainJSXElement } from "../../plainJSX"
+import { useRef } from "../../plainJSX/utils"
+import { Slider } from "../Slider"
 
 import "./Test.scss"
 
@@ -8,7 +8,7 @@ interface Props {
     text: string
 }
 
-export default function Test({text}: Props): PlainJSXElement {
+export default function Test({ text }: Props): PlainJSXElement {
     let counter = 0
     const counterRef = useRef()
 
@@ -18,10 +18,11 @@ export default function Test({text}: Props): PlainJSXElement {
             ref.innerText = `${counter}`
         })
     }
-    
+
     return (
         <div>
-            {text}<div id={counterRef.id}>{`${counter}`}</div>
+            {text}
+            <div id={counterRef.id}>{`${counter}`}</div>
             <button onclick={handleClick}>Do NOT Click Me</button>
             <Slider
                 min="1"
@@ -32,9 +33,10 @@ export default function Test({text}: Props): PlainJSXElement {
                     const target = e.target as HTMLInputElement
                     counterRef.update((ref) => {
                         counter = Number.parseInt(target.value) || counter
-                        ref.innerText =  `${counter}`
+                        ref.innerText = `${counter}`
                     })
-                }} />
+                }}
+            />
         </div>
     )
 }

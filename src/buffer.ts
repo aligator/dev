@@ -1,4 +1,4 @@
-import {PlainJSXElement} from './plainJSX'
+import { PlainJSXElement } from "./plainJSX"
 
 export default class Buffer {
     private onWrites: ((buffer: Buffer) => void)[] = []
@@ -11,8 +11,10 @@ export default class Buffer {
     }
 
     write(...values: (PlainJSXElement | PlainJSXElement[] | string)[]): void {
-        const printAll = (...data: (PlainJSXElement | PlainJSXElement[] | string)[]) => {
-            data.forEach(element => {
+        const printAll = (
+            ...data: (PlainJSXElement | PlainJSXElement[] | string)[]
+        ) => {
+            data.forEach((element) => {
                 if (element instanceof PlainJSXElement) {
                     this.buffer.children.push(...element.children)
                 } else if (typeof element === "string") {
@@ -23,9 +25,9 @@ export default class Buffer {
                     console.error("write called without valid value", element)
                     return
                 }
-            });
+            })
         }
-        
+
         printAll(...values)
 
         this.onWrites.forEach((onWrite) => {
@@ -36,9 +38,9 @@ export default class Buffer {
     read(): PlainJSXElement {
         const data = this.buffer
 
-        for (let i=0; i<=this.buffer.children.length; i++) {
+        for (let i = 0; i <= this.buffer.children.length; i++) {
             if (typeof this.buffer.children[i] !== "string") {
-                (this.buffer.children[i] as Element | undefined)?.remove()
+                ;(this.buffer.children[i] as Element | undefined)?.remove()
             }
         }
 
@@ -51,7 +53,7 @@ export default class Buffer {
     }
 
     get(): PlainJSXElement {
-        return this.buffer;
+        return this.buffer
     }
 
     on(event: "write" | "read", cb: (buffer: Buffer) => void): void {

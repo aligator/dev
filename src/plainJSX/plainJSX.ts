@@ -2,14 +2,13 @@ export type HTMLAttributes<T> = Partial<T>
 
 export type HTMLElements<T> = {
     readonly [P in keyof T]: HTMLAttributes<T[P]>
-};
+}
 
 export type IntrinsicHTMLElements = HTMLElements<HTMLElementTagNameMap>
 
-export type Child = (PlainJSXElement | PlainJSXElement[] | string)
+export type Child = PlainJSXElement | PlainJSXElement[] | string
 
 type Props = Record<string, unknown> | null
-
 
 export class PlainJSXElement {
     children: (Element | string)[] = []
@@ -31,13 +30,17 @@ export class PlainJSXElement {
 
         return result
     }
-   
-    constructor(type: string | ((props?: Props, children?: Child[]) => PlainJSXElement), props?: Props, ...children: Child[]) {
+
+    constructor(
+        type: string | ((props?: Props, children?: Child[]) => PlainJSXElement),
+        props?: Props,
+        ...children: Child[]
+    ) {
         let elem: Element
-    
+
         if (typeof type == "function") {
             this.children.push(...type(props || {}, children || []).children)
-            return 
+            return
         }
 
         if (typeof type === "string" && type.length !== 0) {
@@ -47,11 +50,13 @@ export class PlainJSXElement {
                 Object.keys(props || {}).forEach((k) => {
                     // because it can be any
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    (elem as any)[k] = props[k]
+                    ;(elem as any)[k] = props[k]
                 })
             }
 
-            const addChild = (child: Element | PlainJSXElement | PlainJSXElement[] | string) => {
+            const addChild = (
+                child: Element | PlainJSXElement | PlainJSXElement[] | string
+            ) => {
                 if (Array.isArray(child)) {
                     child.forEach(addChild)
                 } else if (child instanceof Element) {
@@ -62,12 +67,14 @@ export class PlainJSXElement {
                     elem.append(child)
                 }
             }
-            (children || []).forEach(addChild)
+            ;(children || []).forEach(addChild)
 
             this.children.push(elem)
         } else {
             // just an fragment -> just save the children but this time direct into the root child list
-            const addChild = (child: Element | PlainJSXElement | PlainJSXElement[] | string) => {
+            const addChild = (
+                child: Element | PlainJSXElement | PlainJSXElement[] | string
+            ) => {
                 if (Array.isArray(child)) {
                     child.forEach(addChild)
                 } else if (child instanceof Element) {
@@ -78,7 +85,7 @@ export class PlainJSXElement {
                     this.children.push(child)
                 }
             }
-            (children || []).forEach(addChild)
+            ;(children || []).forEach(addChild)
         }
     }
 
@@ -103,13 +110,22 @@ export class PlainJSXElement {
     }
 }
 
-type CreateElementType = (name: string, props?: Omit<Props, "children">, ...children: Child[]) => PlainJSXElement
+type CreateElementType = (
+    name: string,
+    props?: Omit<Props, "children">,
+    ...children: Child[]
+) => PlainJSXElement
 
-export const createElement: CreateElementType = (name, props, ...children): PlainJSXElement => {
+export const createElement: CreateElementType = (
+    name,
+    props,
+    ...children
+): PlainJSXElement => {
     return new PlainJSXElement(name, props, ...children)
 }
 
-export const Fragment = (...children: Child[]):  PlainJSXElement => createElement("", undefined, ...children)
+export const Fragment = (...children: Child[]): PlainJSXElement =>
+    createElement("", undefined, ...children)
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace JSX {

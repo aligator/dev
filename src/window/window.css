@@ -16,7 +16,7 @@
 
 .window-content {
     margin-left: var(--window-border-width);
-    background-color: #010101AA;
+    background-color: #010101aa;
 
     height: calc(100% - var(--window-header-height));
     width: inherit;
@@ -27,7 +27,7 @@
     flex-direction: row;
 
     width: calc(100% + var(--window-border-width) + var(--window-border-width));
-    background-color: #AAAAAAAA;
+    background-color: #aaaaaaaa;
 
     /* Text */
     text-align: center;
@@ -55,7 +55,7 @@
     height: var(--window-button-size);
 
     margin: calc((var(--window-header-height) - var(--window-button-size)) / 2);
-    border-radius: var(--window-header-height)
+    border-radius: var(--window-header-height);
 }
 
 .window-button-close {
@@ -68,32 +68,32 @@
     flex-grow: 1;
 }
 
-.window>.resizer {
-    background-color: #AAAAAAAA;
+.window > .resizer {
+    background-color: #aaaaaaaa;
     position: absolute;
 }
 
-.window>.resizer.top {
-    background-color: #FFFFFF00;
+.window > .resizer.top {
+    background-color: #ffffff00;
     top: 0;
     height: var(--window-border-width);
-    left:  var(--window-header-corner-radius);
+    left: var(--window-header-corner-radius);
     width: 100%;
     cursor: s-resize;
 }
-.window>.resizer.bottom {
+.window > .resizer.bottom {
     height: var(--window-border-width);
     width: calc(100% + var(--window-border-width) + var(--window-border-width));
     cursor: s-resize;
 }
-.window>.resizer.right {
+.window > .resizer.right {
     top: var(--window-header-height);
     height: calc(100% - var(--window-header-height));
     right: calc(0px - var(--window-border-width) - var(--window-border-width));
     width: var(--window-border-width);
     cursor: e-resize;
 }
-.window>.resizer.left {
+.window > .resizer.left {
     top: var(--window-header-height);
     height: calc(100% - var(--window-header-height));
     width: var(--window-border-width);

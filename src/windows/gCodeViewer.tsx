@@ -1,9 +1,9 @@
-import * as PlainJSX from "../plainJSX";
-import { Window } from "../window";
-import { GCodeRenderer, SpeedColorizer, Color } from "gcode-viewer";
-import { Slider } from "../components/Slider";
+import * as PlainJSX from "../plainJSX"
+import { Window } from "../window"
+import { GCodeRenderer, SpeedColorizer, Color } from "gcode-viewer"
+import { Slider } from "../components/Slider"
 
-import './gCodeViewer.scss'
+import "./gCodeViewer.scss"
 
 export default class GCodeViewer extends Window {
     private renderer: GCodeRenderer | undefined
@@ -40,23 +40,35 @@ export default class GCodeViewer extends Window {
                 gCodeString = await res.text()
             }
 
-            this.renderer = new GCodeRenderer(gCodeString, this.width(), this.height() - this.bottomGap, new Color(0x808080))
-            this.renderer.colorizer = new SpeedColorizer(this.renderer.getMinMaxValues().minSpeed || 0, this.renderer.getMinMaxValues().maxSpeed)
+            this.renderer = new GCodeRenderer(
+                gCodeString,
+                this.width(),
+                this.height() - this.bottomGap,
+                new Color(0x808080)
+            )
+            this.renderer.colorizer = new SpeedColorizer(
+                this.renderer.getMinMaxValues().minSpeed || 0,
+                this.renderer.getMinMaxValues().maxSpeed
+            )
             await this.renderer.render()
 
             this.setWindowContent(
                 <div className="gcode-viewer">
                     {this.renderer.element()}
                     <div className="toolbar">
-                        <Slider  // TODO: make toolbar generic in window?
+                        <Slider // TODO: make toolbar generic in window?
                             min="1"
                             max={this.renderer.layerCount().toString()}
                             value={this.renderer.layerCount().toString()}
                             className="slider end-slider"
                             oninput={(e: Event) => {
                                 const target = e.target as HTMLInputElement
-                                this.renderer?.sliceLayer(0, Number.parseInt(target.value))
-                            }} />
+                                this.renderer?.sliceLayer(
+                                    0,
+                                    Number.parseInt(target.value)
+                                )
+                            }}
+                        />
                     </div>
                 </div>
             )
@@ -66,7 +78,10 @@ export default class GCodeViewer extends Window {
                     return
                 }
 
-                this.renderer.resize(this.width(), this.height() - this.bottomGap)
+                this.renderer.resize(
+                    this.width(),
+                    this.height() - this.bottomGap
+                )
             }
         }
 

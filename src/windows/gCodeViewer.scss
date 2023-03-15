@@ -1,16 +1,16 @@
 .gcode-viewer-message {
-    color: #17F018;
+    color: #17f018;
 }
 
 .gcode-viewer {
     background-color: #808080;
 
-    >.toolbar {
+    > .toolbar {
         height: 20px;
         display: flex;
         justify-content: center;
 
-        >.end-slider {
+        > .end-slider {
             width: 90%;
         }
     }

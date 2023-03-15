@@ -1,2 +1,2 @@
-export * as default from './plainJSX'
-export * from './plainJSX'
+export * as default from "./plainJSX"
+export * from "./plainJSX"
