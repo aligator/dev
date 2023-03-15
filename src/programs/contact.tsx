@@ -12,10 +12,7 @@ export default class Contact extends Program {
                     href={`mailto:me${"@"}aligator.dev`}
                 >{`me${"@"}aligator.dev`}</a>
                 <br />
-                <a
-                    href="https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2aaab9c285a8bd5c347da49469810152911c5492"
-                    download="aligator.pub.asc"
-                >
+                <a href="https://keys.openpgp.org/search?q=me@aligator.dev">
                     PGP Key
                 </a>
             </div>
