@@ -44,7 +44,6 @@ export class PlainJSXElement {
         }
 
         if (typeof type === "string" && type.length !== 0) {
-            console.log(type)
             elem = document.createElement(type)
             if (props) {
                 Object.keys(props || {}).forEach((k) => {

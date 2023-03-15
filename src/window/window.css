@@ -3,6 +3,7 @@
     --window-header-height: 25px;
     --window-header-corner-radius: 10px;
     --window-button-size: 11px;
+    --spacing: 6px;
 }
 
 .window {
@@ -19,7 +20,7 @@
     background-color: #010101aa;
 
     height: calc(100% - var(--window-header-height));
-    width: inherit;
+    width: 100%;
 }
 
 .window-header {
@@ -46,6 +47,16 @@
 .window-buttons {
     display: flex;
     flex-direction: row;
+    gap: var(--spacing);
+    margin-top: calc(
+        (var(--window-header-height) - var(--window-button-size)) / 2
+    );
+    margin-bottom: calc(
+        (var(--window-header-height) - var(--window-button-size)) / 2
+    );
+    margin-left: calc(
+        (var(--window-header-height) - var(--window-button-size)) / 2
+    );
 }
 
 .window-button {
@@ -54,7 +65,6 @@
     width: var(--window-button-size);
     height: var(--window-button-size);
 
-    margin: calc((var(--window-header-height) - var(--window-button-size)) / 2);
     border-radius: var(--window-header-height);
 }
 
@@ -64,8 +74,22 @@
     color: black;
 }
 
+.window-button-maximize {
+    background-color: #00a003;
+    border: 1px solid #026200;
+}
+
 .window-header-spacer {
     flex-grow: 1;
+}
+
+.window.has-resizer {
+    /*margin-left: var(--window-border-width);*/
+    margin-right: var(--window-border-width);
+    margin-bottom: calc(
+        var(--window-border-width),
+        var(--window-header-height)
+    );
 }
 
 .window > .resizer {

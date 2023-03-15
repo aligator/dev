@@ -1,6 +1,7 @@
 export function dragElement(
     movable: HTMLDivElement,
-    handle: HTMLDivElement
+    handle: HTMLDivElement,
+    onMove: () => void
 ): void {
     let pos1 = 0,
         pos2 = 0,
@@ -43,5 +44,6 @@ export function dragElement(
         // stop moving when mouse button is released:
         document.onmouseup = null
         document.onmousemove = null
+        onMove()
     }
 }

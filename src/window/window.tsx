@@ -8,13 +8,42 @@ import { makeResizeable } from "./resize"
 
 import "./window.css"
 
+export type ResizeHandler = (width: number, height: number) => void
+
 let lastWinID = 0
+
+function getBorderWidth() {
+    return parseFloat(
+        getComputedStyle(document.body).getPropertyValue(
+            "--window-border-width"
+        )
+    )
+}
 
 export class Window {
     readonly windowID: string
     private readonly titleElement: HTMLDivElement
     private readonly headerElement: HTMLDivElement
     private readonly contentElement: HTMLDivElement
+
+    private _isMaximized = false
+    public get isMaximized(): boolean {
+        return this._isMaximized
+    }
+    public set isMaximized(newValue: boolean) {
+        this._isMaximized = newValue
+        if (this._isMaximized) {
+            this.element.style.width = `${
+                window.innerWidth - getBorderWidth() * 2
+            }px`
+            this.element.style.height = `${
+                window.innerHeight - getBorderWidth()
+            }px`
+            this.element.style.left = "0px"
+            this.element.style.top = "0px"
+            this.element.style.maxHeight = "100%"
+        }
+    }
 
     onClose?: () => void
     onClick?: (e: MouseEvent) => void
@@ -31,9 +60,13 @@ export class Window {
         const header = (
             <div className="window-header">
                 <div className="window-buttons">
-                    <div
+                    <button
                         className="window-button window-button-close"
                         onclick={() => this.close()}
+                    />
+                    <button
+                        className="window-button window-button-maximize"
+                        onclick={() => (this.isMaximized = !this.isMaximized)}
                     />
                 </div>
                 <div className="window-header-spacer"></div>
@@ -53,15 +86,19 @@ export class Window {
         )
 
         this.element = this.component.getFirstAs()
-        this.element.style.width = "900px"
-        this.element.style.maxHeight = "800px"
-        this.element.style.height = "800px"
+        this.element.style.width = `${window.innerWidth * 0.9}px`
+        this.element.style.maxHeight = `100%`
+        this.element.style.height = `${window.innerHeight * 0.9}px`
 
-        dragElement(this.element, this.headerElement)
         makeResizeable(this.element, (width: number, height: number) => {
             if (this.onResize) {
                 this.onResize(width, height)
             }
+            this.isMaximized = false
+        })
+
+        dragElement(this.element, this.headerElement, () => {
+            this.isMaximized = false
         })
 
         this.element.addEventListener("click", (e) => {

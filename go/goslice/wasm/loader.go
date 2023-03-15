@@ -2,7 +2,6 @@ package wasm
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"

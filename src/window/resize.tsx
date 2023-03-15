@@ -18,6 +18,7 @@ export function makeResizeable(
     ).getFirstAs()
 
     resizeable.append(top, bottom, left, right)
+    resizeable.className += " has-resizer"
 
     top.onmousedown = () => {
         document.onmouseup = clearOnMouseMove
@@ -56,7 +57,9 @@ export function makeResizeable(
         document.onmousemove = (e) => {
             const x = e.clientX
 
-            const currentX = parseFloat(resizeable.style.left || "0")
+            const currentX =
+                parseFloat(resizeable.style.left || "0") +
+                parseFloat(`${left.clientWidth}` || "0")
             const currentWidth = parseFloat(resizeable.style.width || "0")
 
             const newWidth = currentWidth + currentX - x
@@ -73,7 +76,11 @@ export function makeResizeable(
         document.onmousemove = (e) => {
             const x = e.clientX
 
-            const currentX = parseFloat(resizeable.style.left || "0")
+            const currentX =
+                parseFloat(resizeable.style.left || "0") +
+                parseFloat(`${left.clientWidth}` || "0") +
+                parseFloat(`${right.clientWidth}` || "0")
+
             const newWidth = x - currentX
 
             resizeable.style.width = `${newWidth}px`
