@@ -10,9 +10,9 @@ export default class Buffer {
         this.buffer = new PlainJSXElement("")
     }
 
-    write(...values: (PlainJSXElement | PlainJSXElement[] | string)[]): void {
+    write(...values: (PlainJSXElement | PlainJSXElement[] | string | Error)[]): void {
         const printAll = (
-            ...data: (PlainJSXElement | PlainJSXElement[] | string)[]
+            ...data: (PlainJSXElement | PlainJSXElement[] | string | Error)[]
         ) => {
             data.forEach((element) => {
                 if (element instanceof PlainJSXElement) {
@@ -21,6 +21,8 @@ export default class Buffer {
                     this.buffer.children.push(element)
                 } else if (Array.isArray(element)) {
                     printAll(element)
+                } else if (element instanceof Error) {
+                    this.buffer.children.push(element.message)
                 } else {
                     console.error("write called without valid value", element)
                     return
